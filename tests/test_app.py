@@ -8,7 +8,6 @@ request.
 from __future__ import annotations
 
 
-
 def test_health_endpoint_reports_ok(client):
     """The health probe returns 200 with every dependency reachable."""
     response = client.get("/api/health")

@@ -9,13 +9,13 @@ wiring is commented out in `app/bootstrap.py`. Add them here when you switch
 it on, so `sillo-start dev` starts the worker alongside the app.
 """
 
-package = 'starter'
+package = "starter"
 features = [
-    'database',
-    'auth',
-    'admin',
-    'session',
-    'api',
+    "database",
+    "auth",
+    "admin",
+    "session",
+    "api",
 ]
-auth_strategy = 'session'
-admin_title = 'Starter Admin'
+auth_strategy = "session"
+admin_title = "Starter Admin"

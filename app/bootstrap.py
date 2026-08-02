@@ -9,19 +9,17 @@ module-level code means tests can build an isolated instance, and the import in
 from __future__ import annotations
 
 from sillo import silloApp
-from sillo.security import (
-    CORSMiddleware,
-    CorsConfig,
-)
-from sillo.session import SessionConfig, SessionMiddleware
-from sillo.record import DatabaseConfig, setup_record
 from sillo.auth import AuthenticationMiddleware
 from sillo.auth.session_auth import SessionAuthBackend
+from sillo.record import DatabaseConfig, setup_record
+from sillo.security import (
+    CorsConfig,
+    CORSMiddleware,
+)
+from sillo.session import SessionConfig, SessionMiddleware
 from sillo.work import setup_work
-from sillo.admin import setup_admin
 
-from app.config import config
-from app.config import cors_origins
+from app.config import config, cors_origins
 from database.models.user import User
 
 

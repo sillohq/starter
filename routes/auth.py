@@ -10,11 +10,10 @@ from __future__ import annotations
 
 from pydantic import BaseModel, EmailStr, Field
 from sillo import Router
-from sillo.core.http import Request, Response
 from sillo.auth.session_auth import login as start_session
 from sillo.auth.session_auth import logout as end_session
+from sillo.core.http import Request, Response
 
-from app.config import config
 from database.models.user import User
 
 router = Router(prefix="/api/auth", tags=["auth"])

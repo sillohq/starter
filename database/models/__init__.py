@@ -19,5 +19,5 @@ from database.models.user import User
 #: The explicit registry the ORM reads, in preference to scanning this module.
 __models__ = [User]
 
-__all__ = ['User']
+__all__ = ["User"]
 # <<< sillo-start: models <<<

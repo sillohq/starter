@@ -15,15 +15,15 @@ import signal
 import sys
 from pathlib import Path
 
-from sillo.record import DatabaseConfig, setup_record
 from sillo import silloApp
+from sillo.record import DatabaseConfig, setup_record
 from sillo.work.queue import (
     ConnectionManager,
     MemoryFailedRepository,
     PayloadSerializer,
     QueueWorker,
-    WorkerOptions,
     SyncConnection,
+    WorkerOptions,
 )
 
 # Running this file directly puts scripts/ on sys.path rather than the project
@@ -31,11 +31,10 @@ from sillo.work.queue import (
 # above the app imports.
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from app.config import config  # noqa: E402
-
 # Importing the jobs package registers the job classes so the worker can
 # resolve a payload back to the class that handles it.
 import app.jobs  # noqa: E402,F401
+from app.config import config  # noqa: E402
 
 
 async def main() -> None:
