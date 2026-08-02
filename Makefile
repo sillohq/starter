@@ -6,7 +6,7 @@
 
 .DEFAULT_GOAL := help
 .PHONY: help setup install migrate migration rollback history dev serve worker \
-        scheduler admin test smoke lint format check clean
+        scheduler admin test smoke lint format check clean up plan
 
 PY  := uv run
 APP := app.main:app
@@ -31,24 +31,25 @@ install:  ## Install Python dependencies, including the dev tools
 
 # -- database ----------------------------------------------------------
 
-# Tortoise's own migration engine, so the starter needs no extra tooling.
-# `sillo-start migrate` drives exactly the same commands if you prefer it.
-TORTOISE := $(PY) tortoise -c database.config.TORTOISE_ORM
+# Migrations go through sillo.record, never the ORM's own tooling. The settings
+# come from app/database.py, which is what the application runs on too.
+MIGRATE := $(PY) python scripts/migrate.py
 
 migrate:  ## Create the database and apply every pending migration
-	# Applies only. Writing migrations is `make migration`, so a deploy can
-	# never invent one from whatever the working tree happens to contain.
-	$(TORTOISE) migrate
+	$(MIGRATE) init
 
-migration:  ## Write a migration from model changes, then apply it. make migration m="add_posts"
-	$(TORTOISE) makemigrations --name "$(or $(m),update)"
-	$(TORTOISE) migrate
+up:  ## Apply pending migrations, without writing any
+	$(MIGRATE) up
+
+migration:  ## Write a migration from model changes. make migration m="add_posts"
+	$(MIGRATE) make "$(or $(m),update)"
+	$(MIGRATE) up
 
 rollback:  ## Roll back to a migration. make rollback to=0001_initial
-	$(TORTOISE) downgrade models "$(to)"
+	$(MIGRATE) down "$(to)"
 
-history:  ## Show which migrations have been applied
-	$(TORTOISE) history
+plan:  ## Show which migrations would run
+	$(MIGRATE) plan
 
 admin:  ## Create an administrator account
 	$(PY) python scripts/create_admin.py

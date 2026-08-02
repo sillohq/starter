@@ -23,7 +23,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from tortoise import Tortoise  # noqa: E402
 
-from database.config import TORTOISE_ORM  # noqa: E402
+from app.database import TORTOISE_ORM  # noqa: E402
 from database.models.user import User  # noqa: E402
 
 

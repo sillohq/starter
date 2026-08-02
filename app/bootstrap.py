@@ -14,7 +14,7 @@ from sillo.auth.session_auth import SessionAuthBackend
 
 # For JWT instead of sessions — see the backend swap in _register_middleware.
 # from sillo.auth.jwt_auth import JWTAuthBackend
-from sillo.record import DatabaseConfig, setup_record
+from sillo.record import setup_record
 from sillo.security import (
     CorsConfig,
     CORSMiddleware,
@@ -162,24 +162,9 @@ def _register_database(application: silloApp) -> None:
     per-request context middleware, and stores the manager on
     ``application.state["record"]`` for health checks.
     """
-    setup_record(
-        application,
-        # Off by default — see config.db_generate_schemas for why.
-        DatabaseConfig(
-            url=config.database_url,
-            pool_size=config.db_pool_size,
-            echo=config.db_echo,
-            generate_schemas=config.db_generate_schemas,
-        ),
-        # Only these modules are scanned for models, and models are keyed by
-        # class name — so do not add "sillo.users" here. Its built-in `User`
-        # would displace the project's own and stop its columns being created.
-        model_modules=[
-            "database.models",
-            # The admin panel stores its activity log and roles in these models.
-            "sillo.admin.models",
-        ],
-    )
+    from app.database import MODEL_MODULES, database_config
+
+    setup_record(application, database_config(), model_modules=MODEL_MODULES)
 
 
 def _register_work(application: silloApp) -> None:
