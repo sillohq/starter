@@ -36,8 +36,8 @@ install:  ## Install Python dependencies, including the dev tools
 TORTOISE := $(PY) tortoise -c database.config.TORTOISE_ORM
 
 migrate:  ## Create the database and apply every pending migration
-	@$(TORTOISE) init 2>/dev/null || true
-	@$(TORTOISE) makemigrations --name initial 2>/dev/null || true
+	# Applies only. Writing migrations is `make migration`, so a deploy can
+	# never invent one from whatever the working tree happens to contain.
 	$(TORTOISE) migrate
 
 migration:  ## Write a migration from model changes, then apply it. make migration m="add_posts"

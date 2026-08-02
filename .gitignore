@@ -36,5 +36,9 @@ storage/app/*
 .vscode/
 *.swp
 
-# Local database and generated migration bytecode
+# The local database, including SQLite's write-ahead log and shared-memory
+# files. Committing those leaves a clone with a WAL referring to a database
+# that is not there, which SQLite reports as "disk I/O error".
 storage/*.db
+storage/*.db-shm
+storage/*.db-wal
