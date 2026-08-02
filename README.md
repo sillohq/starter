@@ -261,6 +261,7 @@ engine, and `create_app` sets it up before any page renders — without that,
 ```python
 from sillo.templating import render
 
+
 async def home(request, response):
     return await render("pages/home.html", {"title": "Home"}, request=request)
 ```
@@ -288,6 +289,7 @@ Routers under `/api`, documented at `/docs`.
 from sillo import Router
 
 router = Router(prefix="/api/posts", tags=["posts"])
+
 
 @router.get("/", summary="List posts")
 async def index(request, response):
