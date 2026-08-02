@@ -6,7 +6,7 @@
 
 .DEFAULT_GOAL := help
 .PHONY: help setup install migrate migration rollback history dev serve worker \
-        scheduler admin test lint format check clean
+        scheduler admin test smoke lint format check clean
 
 PY  := uv run
 APP := app.main:app
@@ -24,8 +24,10 @@ setup: install ## Install dependencies, create .env, and set the database up
 	@$(MAKE) migrate
 	@echo "  ready. run: make dev"
 
-install:  ## Install Python dependencies
-	uv sync
+install:  ## Install Python dependencies, including the dev tools
+	# --all-extras because a cloned starter is a development environment:
+	# pytest, ruff and httpx are wanted from the first minute.
+	uv sync --all-extras
 
 # -- database ----------------------------------------------------------
 
@@ -71,6 +73,9 @@ scheduler:  ## Run the scheduled task runner
 test:  ## Run the test suite
 	$(PY) pytest -q
 
+smoke:  ## Boot the app and call every route
+	$(PY) python scripts/smoke.py
+
 lint:  ## Check formatting and lint rules
 	$(PY) ruff check .
 	$(PY) ruff format --check .
@@ -79,7 +84,7 @@ format:  ## Apply formatting and fixable lint rules
 	$(PY) ruff format .
 	$(PY) ruff check --fix .
 
-check: lint test  ## Everything CI runs
+check: lint test smoke  ## Everything CI runs
 
 clean:  ## Remove caches and build artefacts
 	find . -type d -name __pycache__ -prune -exec rm -rf {} +
