@@ -35,3 +35,6 @@ storage/app/*
 .idea/
 .vscode/
 *.swp
+
+# Local database and generated migration bytecode
+storage/*.db

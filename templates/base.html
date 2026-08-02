@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}{{ app_name }}{% endblock %}</title>
+  <link rel="stylesheet" href="/static/css/app.css">
+</head>
+<body>
+  <header class="site">
+    <a class="brand" href="/">{{ app_name }}</a>
+    <nav>
+      {% if user %}
+        <span class="who">{{ user.username }}</span>
+        <form method="post" action="/logout"><button type="submit">Sign out</button></form>
+      {% else %}
+        <a href="/login">Sign in</a>
+        <a href="/register">Create account</a>
+      {% endif %}
+    </nav>
+  </header>
+
+  <main>
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer><small>Built with Sillo</small></footer>
+</body>
+</html>

@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block content %}
+  <h1>{{ app_name }}</h1>
+  <p>The starter is running. What is already wired:</p>
+  <ul>
+    <li>Session authentication with a user model and migrations</li>
+    <li>An admin panel at <a href="/admin/">/admin/</a></li>
+    <li>A JSON API under <code>/api</code>, documented at <a href="/docs">/docs</a></li>
+    <li>Server-rendered pages — this one</li>
+    <li>A queue worker and scheduler, switched off until you need them</li>
+  </ul>
+  {% if not user %}<p><a href="/register">Create an account</a> to see the signed-in view.</p>{% endif %}
+{% endblock %}
