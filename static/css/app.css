@@ -1,35 +1,20 @@
-/* Deliberately small. Enough that the starter does not look broken, little
-   enough that replacing it wholesale is no loss. */
-:root { --ink: #16181d; --muted: #6b7280; --line: #e5e7eb; --accent: #2563eb; --bg: #fff; }
+/* Deliberately small — enough that the page does not look broken, little
+   enough that replacing it wholesale costs you nothing. */
+:root { --ink: #16181d; --muted: #6b7280; --accent: #2563eb; --bg: #fff; }
 @media (prefers-color-scheme: dark) {
-  :root { --ink: #e8eaed; --muted: #9aa0a6; --line: #2c2f36; --accent: #7aa2f7; --bg: #14161a; }
+  :root { --ink: #e8eaed; --muted: #9aa0a6; --accent: #7aa2f7; --bg: #14161a; }
 }
-* { box-sizing: border-box; }
 body {
   margin: 0; background: var(--bg); color: var(--ink);
   font: 16px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
-header.site {
-  display: flex; align-items: center; justify-content: space-between; gap: 1rem;
-  padding: 1rem 1.5rem; border-bottom: 1px solid var(--line);
-}
-header.site nav { display: flex; align-items: center; gap: 1rem; }
-.brand { font-weight: 600; text-decoration: none; color: inherit; }
-.who { color: var(--muted); }
-main { max-width: 46rem; margin: 0 auto; padding: 2rem 1.5rem; }
-footer { max-width: 46rem; margin: 0 auto; padding: 2rem 1.5rem; color: var(--muted); }
+main { max-width: 40rem; margin: 0 auto; padding: 4rem 1.5rem; }
+h1 { font-size: 1.7rem; margin: 0 0 1rem; }
 a { color: var(--accent); }
-h1 { font-size: 1.6rem; margin: 0 0 1rem; }
-form { display: grid; gap: .75rem; max-width: 22rem; margin: 1.25rem 0; }
-label { display: grid; gap: .25rem; }
-input {
-  padding: .55rem .7rem; border: 1px solid var(--line); border-radius: 6px;
-  background: var(--bg); color: inherit; font: inherit;
+ul { padding-left: 1.1rem; }
+li { margin: .35rem 0; }
+.muted { color: var(--muted); margin-top: 2rem; }
+code {
+  background: rgba(127, 127, 127, .14);
+  padding: .1em .35em; border-radius: 4px; font-size: .92em;
 }
-button {
-  padding: .55rem .9rem; border: 0; border-radius: 6px; cursor: pointer;
-  background: var(--accent); color: #fff; font: inherit;
-}
-header.site button { background: none; color: var(--accent); padding: 0; }
-.error { color: #b91c1c; }
-code { background: rgba(127,127,127,.14); padding: .1em .35em; border-radius: 4px; }

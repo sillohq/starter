@@ -11,6 +11,9 @@ from __future__ import annotations
 from sillo import silloApp
 from sillo.auth import AuthenticationMiddleware
 from sillo.auth.session_auth import SessionAuthBackend
+
+# For JWT instead of sessions — see the backend swap in _register_middleware.
+# from sillo.auth.jwt_auth import JWTAuthBackend
 from sillo.record import DatabaseConfig, setup_record
 from sillo.security import (
     CorsConfig,
@@ -102,6 +105,28 @@ def _register_middleware(application: silloApp) -> None:
         AuthenticationMiddleware(
             user_model=User,
             backend=SessionAuthBackend(),
+            # To authenticate with bearer tokens instead, uncomment the import
+            # above and swap the backend for:
+            #
+            #     backend=JWTAuthBackend(
+            #         secret_key=config.jwt_secret,
+            #         identifier="sub",
+            #     ),
+            #
+            # identifier="sub" is required, not cosmetic. The backend reads
+            # payload.get(identifier) and defaults to "id", but sillo writes the
+            # user id into the "sub" claim — so with the default, identity is
+            # always "" and every authenticated request silently fails to load a
+            # user, with nothing logged.
+            #
+            # Issue tokens with TokenForUser:
+            #
+            #     from sillo.auth.jwt_auth import TokenForUser
+            #     pair = TokenForUser(user, secret=config.jwt_secret).token_pair()
+            #
+            # Add JWT_SECRET to .env, and jwt_secret to app/config.py. Keep the
+            # session middleware either way: the admin panel authenticates
+            # through the session regardless of what the rest of the app uses.
         )
     )
     # Registered after authentication so it ends up *outside* it and therefore
@@ -193,12 +218,7 @@ def _register_routes(application: silloApp) -> None:
     # "" and claim everything, including the admin panel that startup adds.
     from routes import web
 
-    application.get("/", handler=web.home, name="home")
-    application.get("/login", handler=web.login_form, name="login")
-    application.post("/login", handler=web.login_submit, name="login.submit")
-    application.get("/register", handler=web.register_form, name="register")
-    application.post("/register", handler=web.register_submit, name="register.submit")
-    application.post("/logout", handler=web.logout, name="logout")
+    application.get("/", handler=web.welcome, name="welcome")
 
 
 def _register_admin(application: silloApp) -> None:

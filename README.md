@@ -42,11 +42,11 @@ Then open <http://localhost:8000>.
 
 | | |
 | --- | --- |
-| **Auth** | Session-based, with registration, sign-in and sign-out on both pages and the API |
+| **Auth** | Session-based over JSON, with JWT written and commented out |
 | **Users** | A `User` model with a manager, password hashing and `verify_credentials` |
 | **Admin** | Mounted at `/admin/`, with the user model registered |
 | **Database** | Record (Tortoise) with SQLite by default, and real migrations |
-| **Pages** | Jinja templates, a base layout, and `/static` served in development |
+| **Pages** | One Jinja template and a stylesheet, with `/static` served in development |
 | **API** | JSON routes under `/api`, with OpenAPI at `/docs` |
 | **Queue** | A worker and scheduler, wired but commented out |
 | **Tooling** | `make` targets, ruff, pytest, and CI on three Python versions |
@@ -214,18 +214,32 @@ Passwords must be at least 8 characters and contain an uppercase letter, a digit
 and a special character. The framework enforces this and reports precisely which
 rule failed.
 
-### Wanting JWT instead
+### Switching to JWT
 
-`sillo.auth.jwt_auth` provides `JWTAuthBackend` and `TokenForUser`. Swap the
-backend in `app/bootstrap.py`. One thing to know: pass `identifier="sub"`.
+The wiring is written and commented out in `app/bootstrap.py`. Uncomment the
+import and swap the backend:
 
 ```python
-JWTAuthBackend(secret_key=config.secret_key, identifier="sub")
+from sillo.auth.jwt_auth import JWTAuthBackend
+
+backend = JWTAuthBackend(secret_key=config.jwt_secret, identifier="sub")
 ```
 
-The backend defaults to reading the `id` claim, but tokens carry the user id in
-`sub`. With the default, every authenticated request silently fails to load a
-user, with nothing logged.
+Then add `JWT_SECRET` to `.env` and `jwt_secret` to `app/config.py`, and issue
+tokens with `TokenForUser`:
+
+```python
+from sillo.auth.jwt_auth import TokenForUser
+
+pair = TokenForUser(user, secret=config.jwt_secret).token_pair()
+```
+
+`identifier="sub"` is required, not cosmetic. The backend defaults to reading
+the `id` claim, but tokens carry the user id in `sub` — so with the default,
+every authenticated request silently fails to load a user, with nothing logged.
+
+Keep the session middleware either way: the admin panel authenticates through
+the session regardless of what the rest of the application uses.
 
 ## The admin panel
 
@@ -254,28 +268,29 @@ move the rest of the app to JWT.
 
 ## Pages and templates
 
-Templates are Jinja, under `templates/`. `app/templating.py` configures the
-engine, and `create_app` sets it up before any page renders — without that,
-`render` raises `NotImplementedError`.
+One page, at `/`, rendered from `templates/welcome.html`. Replace it with
+whatever your application actually is.
+
+`app/templating.py` configures Jinja, and `create_app` sets it up before any
+page renders — without that, `render` raises `NotImplementedError`.
 
 ```python
 from sillo.templating import render
 
 
-async def home(request, response):
-    return await render("pages/home.html", {"title": "Home"}, request=request)
+async def welcome(request, response):
+    return await render("welcome.html", {"app_name": config.app_name}, request=request)
 ```
 
 Pages are registered **individually** in `bootstrap.py`, not mounted as a
 router:
 
 ```python
-application.get("/", handler=web.home, name="home")
+application.get("/", handler=web.welcome, name="welcome")
 ```
 
 A `Router` with no prefix claims `""` and everything under it, including the
-admin panel that mounts during startup. Registering handlers one at a time
-avoids that.
+admin panel that mounts during startup.
 
 Form bodies are read with `await request.form` — an async *property*, with no
 call parentheses. `await request.form()` awaits the coroutine and then calls the

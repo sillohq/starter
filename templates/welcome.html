@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ app_name }}</title>
+  <link rel="stylesheet" href="/static/css/app.css">
+</head>
+<body>
+  <main>
+    <h1>Welcome to the Sillo starter template</h1>
+    <p>Your application is running. Edit this page in <code>templates/welcome.html</code>.</p>
+
+    <ul>
+      <li><a href="/docs">/docs</a> — the API, documented</li>
+      <li><a href="/api/health">/api/health</a> — liveness probe</li>
+      <li><a href="/admin/">/admin/</a> — the admin panel</li>
+    </ul>
+
+    <p class="muted">
+      Auth, the ORM and migrations are wired. A queue worker and JWT
+      authentication are written but switched off — see
+      <code>app/bootstrap.py</code>.
+    </p>
+  </main>
+</body>
+</html>

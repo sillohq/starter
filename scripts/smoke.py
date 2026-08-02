@@ -58,46 +58,45 @@ async def main() -> int:
         if not ok:
             failures.append(f"{label}: expected {expected}, got {actual}")
 
-    suffix = uuid.uuid4().hex[:8]
     async with Lifespan(app):
         transport = httpx.ASGITransport(app=app)
         async with httpx.AsyncClient(
             transport=transport, base_url="http://smoke", follow_redirects=False
         ) as client:
-            for path in ("/", "/login", "/register"):
-                check(f"GET {path}", (await client.get(path)).status_code, 200)
+            check("GET /", (await client.get("/")).status_code, 200)
             check(
                 "GET /static/css/app.css",
                 (await client.get("/static/css/app.css")).status_code,
                 200,
             )
             check("GET /docs", (await client.get("/docs")).status_code, 200)
-            check("GET /admin/login/", (await client.get("/admin/login/")).status_code, 200)
             check("GET /api/health", (await client.get("/api/health")).status_code, 200)
+            check("GET /admin/login/", (await client.get("/admin/login/")).status_code, 200)
 
-            response = await client.post(
-                "/register",
-                data={
+            page = await client.get("/")
+            check("welcome page renders", "Sillo starter" in page.text, True)
+
+            # The JSON auth API, which is what the starter ships enabled.
+            suffix = uuid.uuid4().hex[:8]
+            created = await client.post(
+                "/api/auth/register",
+                json={
                     "email": f"{suffix}@example.com",
                     "username": suffix,
                     "password": "Hunter2!pass",
                 },
             )
-            check("POST /register", response.status_code, 303)
-
-            page = await client.get("/")
-            check("signed-in page shows the user", suffix in page.text, True)
-
-            check("POST /logout", (await client.post("/logout")).status_code, 303)
-            bad = await client.post(
-                "/login", data={"identifier": f"{suffix}@example.com", "password": "wrong"}
+            check("POST /api/auth/register", created.status_code, 201)
+            signed_in = await client.post(
+                "/api/auth/login",
+                json={"identifier": f"{suffix}@example.com", "password": "Hunter2!pass"},
             )
-            check("POST /login with a bad password", bad.status_code, 401)
-            good = await client.post(
-                "/login",
-                data={"identifier": f"{suffix}@example.com", "password": "Hunter2!pass"},
+            check("POST /api/auth/login", signed_in.status_code, 200)
+            wrong = await client.post(
+                "/api/auth/login",
+                json={"identifier": f"{suffix}@example.com", "password": "nope"},
             )
-            check("POST /login with the right one", good.status_code, 303)
+            check("POST /api/auth/login, bad password", wrong.status_code, 401)
 
     if failures:
         print("\n" + "\n".join(f"  {failure}" for failure in failures), file=sys.stderr)
