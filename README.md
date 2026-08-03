@@ -113,12 +113,12 @@ app/
   main.py         ASGI entrypoint — `uvicorn app.main:app`
   bootstrap.py    Application assembly. Start reading here
   config.py       Typed settings, loaded from the environment
+  database.py     How this project connects — app and migrations share it
   admin.py        Admin panel registration
   templating.py   Jinja setup
   jobs/           Queue jobs
   tasks/          Scheduled tasks
 database/
-  config.py       Tortoise config, read by the migration engine
   models/         Your models. `user.py` is provided
   migrations/     Generated migrations — commit these
 routes/
@@ -181,19 +181,40 @@ Nothing else changes. The driver is read from the URL.
 ## Database and migrations
 
 Models live in `database/models/` and must be imported in that package's
-`__init__.py` — Tortoise only sees what is imported there, and a model it cannot
+`__init__.py` — the ORM only sees what is imported there, and a model it cannot
 see fails later with `default_connection cannot be None` rather than anything
 about the missing import.
 
 ```bash
 make migration m="add_posts"   # write a migration from your model changes, and apply it
 make migrate                   # apply anything pending, e.g. after pulling
-make history                   # what has been applied
+make plan                      # what would run
 make rollback to=0001_initial  # go back
 ```
 
-Migrations are Tortoise's own, tracked in the `tortoise_migrations` table.
-Commit the files in `database/migrations/` — they are part of the project.
+Migrations are applied and recorded by sillo Record, tracked in the
+`tortoise_migrations` table. Commit the files in `database/migrations/` — they
+are part of the project.
+
+There is no migration config file. `app/database.py` describes how the project
+connects, once, and both the application and the migration commands read it:
+
+```python
+def database() -> DatabaseManager:
+    manager = DatabaseManager(database_config())
+    manager.register_models(*MODEL_MODULES).set_migrations(MIGRATIONS_MODULE)
+    return manager
+```
+
+Change the connection there and migrations follow, with nothing to keep in step
+by hand. It is also how a script of your own opens the database:
+
+```python
+from app.database import database
+
+async with database():
+    await User.all()
+```
 
 The application does **not** create tables on startup. `db_generate_schemas` is
 off, because generating schemas on boot creates tables outside the migration
@@ -435,7 +456,7 @@ Collected from actually running this, not from reading the source.
    every path beneath it, including routes registered later during startup.
    Register root-level pages individually.
 
-3. **Models must be imported in `database/models/__init__.py`.** Tortoise only
+3. **Models must be imported in `database/models/__init__.py`.** The ORM only
    sees what is imported there. A model it cannot see fails on first query with
    "default_connection cannot be None".
 

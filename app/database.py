@@ -1,10 +1,10 @@
 """Database wiring.
 
 One definition of how this project connects, built from
-:class:`sillo.record.DatabaseConfig` and used by both the running application
-and the migration commands. Nothing here writes a Tortoise configuration by
-hand — ``DatabaseManager.tortoise_config()`` derives it from the same settings
-the application runs on, so the two cannot drift apart.
+:class:`sillo.record.DatabaseConfig` and shared by the running application, the
+migration commands and anything else that opens the database. Nothing here
+describes the connection twice, so the application and its migrations cannot
+drift apart.
 """
 
 from __future__ import annotations
@@ -35,12 +35,19 @@ def database_config() -> DatabaseConfig:
     )
 
 
-def _manager() -> DatabaseManager:
-    """A manager carrying this project's config and model modules."""
+def database() -> DatabaseManager:
+    """A manager for this project's database.
+
+    What ``console.py`` hands to the migration commands, and what a script that
+    needs the ORM opens::
+
+        async with database() as db:
+            await User.all()
+
+    The application does not call this — ``setup_record`` in ``app/bootstrap.py``
+    builds its own manager from the same :func:`database_config`, and ties it to
+    the application's startup and shutdown.
+    """
     manager = DatabaseManager(database_config())
-    manager.register_models(*MODEL_MODULES)
+    manager.register_models(*MODEL_MODULES).set_migrations(MIGRATIONS_MODULE)
     return manager
-
-
-#: The configuration the migration engine reads. Derived, never hand-written.
-TORTOISE_ORM = _manager().tortoise_config(MIGRATIONS_MODULE)

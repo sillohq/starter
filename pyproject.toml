@@ -35,6 +35,10 @@ addopts = "-q"
 [tool.ruff]
 line-length = 100
 target-version = "py311"
+# Migrations are written by the migration engine, not by you. Linting them only
+# ever means reformatting generated code, and `make check` would fail the first
+# time you add a model.
+extend-exclude = ["database/migrations"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B"]
@@ -43,5 +47,5 @@ ignore = ["E501"]
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["F401"]
 
-# Migrations are Tortoise-native; the config lives in database/config.py and
-# the migration package is declared there under apps.models.migrations.
+# Migrations need no configuration of their own: `python console.py db ...`
+# reads app/database.py, the same settings the application runs on.

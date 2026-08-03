@@ -17,8 +17,8 @@ operations; this file only decides what to call them and how to print the
 result, which is exactly the part that belongs to a project rather than to a
 framework.
 
-Add your own commands at the bottom of COMMANDS. No dependency beyond sillo is
-needed — argparse ships with Python.
+Add your own by writing a function and registering it in build_parser(). No
+dependency beyond sillo is needed — argparse ships with Python.
 """
 
 from __future__ import annotations
@@ -26,6 +26,7 @@ from __future__ import annotations
 import argparse
 import asyncio
 import getpass
+import logging
 import os
 import sys
 from pathlib import Path
@@ -33,12 +34,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from app.config import config  # noqa: E402
-from app.database import MIGRATIONS_MODULE, TORTOISE_ORM  # noqa: E402
-
-#: The configuration as a dotted path. ``db init`` and ``db make`` read the
-#: configuration by import rather than by value, so they need this form.
-CONFIG_PATH = "app.database.TORTOISE_ORM"
-
+from app.database import MIGRATIONS_MODULE, database  # noqa: E402
 
 # -- database ----------------------------------------------------------
 
@@ -52,10 +48,10 @@ async def db_migrate(args) -> int:
         # Nothing written yet: set the package up and record the starting
         # schema, so a later model change is an alteration of a known table
         # rather than a table the migration engine has never seen.
-        await init(CONFIG_PATH)
-        await make(CONFIG_PATH, "initial")
+        await init(database())
+        await make(database(), "initial")
 
-    await migrate(TORTOISE_ORM, fake=args.fake)
+    await migrate(database(), fake=args.fake)
     print("Database is up to date." if not args.fake else "Migrations recorded.")
     return 0
 
@@ -64,9 +60,9 @@ async def db_make(args) -> int:
     """Write a migration from the current model changes."""
     from sillo.record.commands import make, migrate
 
-    await make(CONFIG_PATH, args.name)
+    await make(database(), args.name)
     if args.apply:
-        await migrate(TORTOISE_ORM)
+        await migrate(database())
         print("Written and applied.")
     else:
         print("Written. Review it, then: python console.py db migrate")
@@ -77,7 +73,7 @@ async def db_plan(args) -> int:
     """Show which migrations would run."""
     from sillo.record.commands import plan
 
-    lines = await plan(TORTOISE_ORM)
+    lines = await plan(database())
     print("\n".join(lines) if lines else "Nothing pending.")
     return 0
 
@@ -86,7 +82,7 @@ async def db_rollback(args) -> int:
     """Roll the database back to a migration."""
     from sillo.record.commands import rollback
 
-    await rollback(TORTOISE_ORM, args.target)
+    await rollback(database(), args.target)
     print(f"Rolled back to {args.target}.")
     return 0
 
@@ -187,15 +183,8 @@ async def _with_database(coroutine):
     Returns:
         Whatever *coroutine* returned.
     """
-    from tortoise import Tortoise
-
-    await Tortoise.init(config=TORTOISE_ORM)
-    try:
+    async with database():
         return await coroutine
-    finally:
-        # Without this the event loop stays alive on an open connection and the
-        # process hangs after the command has finished.
-        await Tortoise.close_connections()
 
 
 def serve(args) -> int:
@@ -223,23 +212,25 @@ def build_parser() -> argparse.ArgumentParser:
     )
     commands = parser.add_subparsers(dest="group", metavar="<command>")
 
-    database = commands.add_parser("db", help="Migrations and schema.").add_subparsers(
+    # Named `schema`, not `database`: the module-level `database` is this
+    # project's manager factory, and shadowing it here would be a trap.
+    schema = commands.add_parser("db", help="Migrations and schema.").add_subparsers(
         dest="action", metavar="<action>"
     )
 
-    migrate_cmd = database.add_parser("migrate", help="Create the database and apply migrations.")
+    migrate_cmd = schema.add_parser("migrate", help="Create the database and apply migrations.")
     migrate_cmd.add_argument("--fake", action="store_true", help="Record without running the SQL.")
     migrate_cmd.set_defaults(run=db_migrate)
 
-    make_cmd = database.add_parser("make", help="Write a migration from model changes.")
+    make_cmd = schema.add_parser("make", help="Write a migration from model changes.")
     make_cmd.add_argument("name", nargs="?", help="Name for the migration.")
     make_cmd.add_argument("--apply", action="store_true", help="Apply it straight away.")
     make_cmd.set_defaults(run=db_make)
 
-    plan_cmd = database.add_parser("plan", help="Show which migrations would run.")
+    plan_cmd = schema.add_parser("plan", help="Show which migrations would run.")
     plan_cmd.set_defaults(run=db_plan)
 
-    rollback_cmd = database.add_parser("rollback", help="Roll back to a migration.")
+    rollback_cmd = schema.add_parser("rollback", help="Roll back to a migration.")
     rollback_cmd.add_argument("target", help="Migration to stop at, or 'zero'.")
     rollback_cmd.set_defaults(run=db_rollback)
 
@@ -283,6 +274,10 @@ def build_parser() -> argparse.ArgumentParser:
 
 def main(argv: list[str] | None = None) -> int:
     """Parse *argv* and run the command it names."""
+    # "Database connected" / "connections closed" around every command is noise
+    # here; the application still logs them at startup.
+    logging.getLogger("sillo.record").setLevel(logging.WARNING)
+
     parser = build_parser()
     args = parser.parse_args(argv)
 
