@@ -67,6 +67,27 @@ make admin      # create an administrator account
 make dev        # run with reload on http://localhost:8000
 ```
 
+Or without make, through the project's own console:
+
+```bash
+python console.py                    # every command
+python console.py db migrate         # create the database, apply migrations
+python console.py db make add_posts --apply
+python console.py db plan
+python console.py db rollback 0001_initial
+python console.py user admin ada@example.com ada
+python console.py user list
+python console.py worker
+python console.py scheduler
+python console.py serve --reload
+```
+
+`console.py` is a thin layer over `sillo.record.commands`,
+`sillo.users.commands` and `sillo.work.commands`. The framework provides the
+operations and ships no command-line interface of its own; this file decides
+what to call them and how to print the result. Add your own commands to it —
+it needs nothing beyond argparse.
+
 `make` on its own lists every task:
 
 | Target | What it does |
@@ -106,10 +127,8 @@ routes/
   api.py          Everything else under /api
 templates/        Jinja templates
 static/           CSS, images, anything served as-is
+console.py        Management commands — see `python console.py`
 scripts/
-  worker.py       Queue worker
-  scheduler.py    Scheduled task runner
-  create_admin.py Administrator bootstrap
   smoke.py        Boots the app and hits every route
 tests/
 ```
@@ -336,8 +355,8 @@ the worker can resolve a queued payload back to the class that handles it.
 Scheduled tasks go in `app/tasks/`.
 
 The default queue is in-memory, which means jobs are lost on restart and are not
-shared between processes. Switch to Redis in `scripts/worker.py` before relying
-on it for anything.
+shared between processes. Set `QUEUE_URL=redis://localhost:6379` before relying
+on it for anything — `console.py worker` reads it and picks the connection.
 
 ## Testing
 

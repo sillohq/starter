@@ -6,7 +6,7 @@
 
 .DEFAULT_GOAL := help
 .PHONY: help setup install migrate migration rollback history dev serve worker \
-        scheduler admin test smoke lint format check clean up plan
+        scheduler admin users test smoke lint format check clean plan
 
 PY  := uv run
 APP := app.main:app
@@ -31,43 +31,43 @@ install:  ## Install Python dependencies, including the dev tools
 
 # -- database ----------------------------------------------------------
 
-# Migrations go through sillo.record, never the ORM's own tooling. The settings
-# come from app/database.py, which is what the application runs on too.
-MIGRATE := $(PY) python scripts/migrate.py
+# Everything goes through console.py, which calls sillo.record.commands,
+# sillo.users.commands and sillo.work.commands. No CLI tool is needed — the
+# project is self-contained.
+CONSOLE := $(PY) python console.py
 
 migrate:  ## Create the database and apply every pending migration
-	$(MIGRATE) init
+	$(CONSOLE) db migrate
 
-up:  ## Apply pending migrations, without writing any
-	$(MIGRATE) up
-
-migration:  ## Write a migration from model changes. make migration m="add_posts"
-	$(MIGRATE) make "$(or $(m),update)"
-	$(MIGRATE) up
-
-rollback:  ## Roll back to a migration. make rollback to=0001_initial
-	$(MIGRATE) down "$(to)"
+migration:  ## Write a migration and apply it. make migration m="add_posts"
+	$(CONSOLE) db make "$(or $(m),update)" --apply
 
 plan:  ## Show which migrations would run
-	$(MIGRATE) plan
+	$(CONSOLE) db plan
 
-admin:  ## Create an administrator account
-	$(PY) python scripts/create_admin.py
+rollback:  ## Roll back to a migration. make rollback to=0001_initial
+	$(CONSOLE) db rollback "$(to)"
+
+admin:  ## Create an administrator account. make admin e=ada@x.com u=ada
+	$(CONSOLE) user admin "$(e)" "$(u)"
+
+users:  ## List users
+	$(CONSOLE) user list
 
 # -- running -----------------------------------------------------------
 
 dev:  ## Run the application with reload
-	$(PY) uvicorn $(APP) --reload --host $(HOST) --port $(PORT)
+	$(CONSOLE) serve --reload --host $(HOST) --port $(PORT)
 
 serve:  ## Run the application as it would run in production
 	$(PY) uvicorn $(APP) --host 0.0.0.0 --port $(PORT) --workers 4
 
 # Uncomment _register_work(application) in app/bootstrap.py before using these.
 worker:  ## Run the queue worker
-	$(PY) python scripts/worker.py
+	$(CONSOLE) worker
 
 scheduler:  ## Run the scheduled task runner
-	$(PY) python scripts/scheduler.py
+	$(CONSOLE) scheduler
 
 # -- quality -----------------------------------------------------------
 

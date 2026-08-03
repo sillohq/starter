@@ -9,7 +9,7 @@ description = ""
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
-    "sillo-framework[cache,hashing-bcrypt,jwt,record,templating]>=0.0.1a3",
+    "sillo-framework[cache,hashing-bcrypt,jwt,record,templating]>=0.0.1a4",
     "tortoise-orm>=1.0",
     "email-validator>=2.0.0",
     "aiosqlite>=0.19.0",

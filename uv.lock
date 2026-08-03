@@ -669,7 +669,7 @@ wheels = [
 
 [[package]]
 name = "sillo-framework"
-version = "0.0.1a3"
+version = "0.0.1a4"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "anyio" },
@@ -680,9 +680,9 @@ dependencies = [
     { name = "python-multipart" },
     { name = "uvicorn" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/8f/e7/26031a08ffe5c606d4941c933898fe945aa0399249f8fff806f61df6390b/sillo_framework-0.0.1a3.tar.gz", hash = "sha256:7fa1476bd836738c2eb43bd1885682b2e409398b21682a9b6bf10cb5e9d10e9d", size = 3060922, upload-time = "2026-08-02T01:29:14.821Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/d6/2c/1015879f27d49fa24a28ae69599e1e1dd9ca002412dffe9d665c83f4bb7f/sillo_framework-0.0.1a4.tar.gz", hash = "sha256:921300db5440d1e97a89e59afcd966d5eb44fee92bc2eca2f78ecd7d313869a1", size = 3069710, upload-time = "2026-08-02T23:15:32.682Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/51/99/cadfca97478fb8ff69d6cc23c771071a0e75d9e50bd85aa577c31aa1ed72/sillo_framework-0.0.1a3-py3-none-any.whl", hash = "sha256:75ff46c25c3d778ea4ae0288b13285082598076140ec3431132e9aa0390ee8d4", size = 818695, upload-time = "2026-08-02T01:29:13.232Z" },
+    { url = "https://files.pythonhosted.org/packages/83/3d/9ccf5615ac6985a0d186e1a704bffae07f6abea3863306152b09450f6856/sillo_framework-0.0.1a4-py3-none-any.whl", hash = "sha256:9758f588e253a00e461b9831fec23322c71be6bb75189082b30dc58c70ab254e", size = 825534, upload-time = "2026-08-02T23:15:30.29Z" },
 ]
 
 [package.optional-dependencies]
@@ -731,7 +731,7 @@ requires-dist = [
     { name = "pytest", marker = "extra == 'dev'", specifier = ">=8.3.5" },
     { name = "pytest-asyncio", marker = "extra == 'dev'", specifier = ">=0.25.3" },
     { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.6.0" },
-    { name = "sillo-framework", extras = ["cache", "hashing-bcrypt", "jwt", "record", "templating"], specifier = ">=0.0.1a3" },
+    { name = "sillo-framework", extras = ["cache", "hashing-bcrypt", "jwt", "record", "templating"], specifier = ">=0.0.1a4" },
     { name = "tortoise-orm", specifier = ">=1.0" },
 ]
 provides-extras = ["dev"]
