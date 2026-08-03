@@ -70,17 +70,24 @@ make dev        # run with reload on http://localhost:8000
 Or without make, through the project's own console:
 
 ```bash
-python console.py                    # every command
-python console.py db migrate         # create the database, apply migrations
-python console.py db make add_posts --apply
-python console.py db plan
-python console.py db rollback 0001_initial
-python console.py user admin ada@example.com ada
-python console.py user list
-python console.py worker
-python console.py scheduler
-python console.py serve --reload
+uv run python console.py                    # every command
+uv run python console.py db migrate         # create the database, apply migrations
+uv run python console.py db make add_posts --apply
+uv run python console.py db plan
+uv run python console.py db rollback 0001_initial
+uv run python console.py user admin ada@example.com ada
+uv run python console.py user list
+uv run python console.py worker
+uv run python console.py scheduler
+uv run python console.py serve --reload
 ```
+
+`uv run` rather than plain `python`, because it always uses this project's
+environment. A virtual environment activated somewhere above this directory
+shadows it, and bare `python` then finds whatever sillo lives there — usually an
+older one, which fails with an ImportError or an AttributeError several frames
+deep. `console.py` checks for this and says so, but running it through `uv`
+avoids the question.
 
 `console.py` is a thin layer over `sillo.record.commands`,
 `sillo.users.commands` and `sillo.work.commands`. The framework provides the
@@ -517,7 +524,11 @@ Collected from actually running this, not from reading the source.
 9. **The admin's login form field is `email`, not `username`.** It accepts
    either value, but the form field is named `email`.
 
-10. **Schema generation is off on purpose.** See
+10. **Run the console through `uv run`, not bare `python`.** An activated
+    virtual environment from a parent directory shadows this project's, and the
+    sillo it finds there is usually older than this project needs.
+
+11. **Schema generation is off on purpose.** See
     [Database and migrations](#database-and-migrations).
 
 ## Licence

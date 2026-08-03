@@ -272,8 +272,69 @@ def build_parser() -> argparse.ArgumentParser:
     return parser
 
 
+#: Things this project calls that older sillo releases do not have. Checked by
+#: name rather than by version number: what matters is whether the call will
+#: work, and a capability that is present needs no version arithmetic.
+REQUIRED = (
+    ("sillo.record.commands", "init"),
+    ("sillo.record.commands", "migrate"),
+    ("sillo.record.manager", "DatabaseManager.set_migrations"),
+    ("sillo.users.commands", "create_admin"),
+)
+
+
+def _check_sillo() -> None:
+    """Refuse to run against a sillo that predates this project.
+
+    The usual cause is not an old install but the wrong interpreter: a virtual
+    environment activated somewhere above this directory shadows the project's
+    own, and bare ``python`` finds whatever sillo lives there. Left alone that
+    surfaces as an ImportError or an AttributeError several frames deep, naming
+    something that looks like a bug in this project.
+
+    Raises:
+        SystemExit: With the interpreter in use and how to run it properly.
+    """
+    from importlib import import_module
+
+    missing = []
+    for module_path, dotted in REQUIRED:
+        try:
+            target = import_module(module_path)
+        except ImportError:
+            # The whole module arrived in a later release than the one in use.
+            missing.append(f"{module_path}.{dotted}")
+            continue
+        for part in dotted.split("."):
+            target = getattr(target, part, None)
+            if target is None:
+                missing.append(f"{module_path}.{dotted}")
+                break
+
+    if not missing:
+        return
+
+    import sillo
+
+    raise SystemExit(
+        f"This project needs a newer sillo-framework than the one being used.\n\n"
+        f"  version:      {getattr(sillo, '__version__', 'unknown')}\n"
+        f"  installed at: {Path(sillo.__file__).parent}\n"
+        f"  python:       {sys.executable}\n"
+        f"  missing:      {', '.join(missing)}\n\n"
+        f"That python is probably not this project's. Run commands through uv, "
+        f"which always uses it:\n\n"
+        f"  uv run python console.py ...\n"
+        f"  make migrate\n\n"
+        f"If you meant to use that interpreter, install the project into it:\n\n"
+        f"  uv sync --all-extras"
+    )
+
+
 def main(argv: list[str] | None = None) -> int:
     """Parse *argv* and run the command it names."""
+    _check_sillo()
+
     # "Database connected" / "connections closed" around every command is noise
     # here; the application still logs them at startup.
     logging.getLogger("sillo.record").setLevel(logging.WARNING)
