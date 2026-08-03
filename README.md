@@ -300,8 +300,29 @@ class PostAdmin(ModelAdmin):
     search_fields = ["title"]
 ```
 
-Sign-in is checked against the project's own `User`, so people use their normal
-account. An account needs `is_staff` to get in — `make admin` sets it.
+### One user model
+
+There is no separate administrator account. Sign-in is checked against the
+project's own `User`, so people use their normal account, and adding a field to
+`User` adds it everywhere.
+
+That works because both the admin's default user model and yours extend
+`sillo.users.UserBaseModel` — the same `set_password`, `check_password` and
+`verify_credentials`. Passing your model is all it takes:
+
+```python
+AdminSite(title="…", prefix=config.admin_prefix, user_model=User)
+```
+
+`app/database.py` therefore registers `sillo.admin.models` — the activity log,
+which the admin writes to — but **not** `sillo.admin.default_user`. That module
+holds the fallback `AdminUser`, and registering it would add an `admin_users`
+table this project would never write a row to.
+
+An account needs `is_staff` to get in, and `make admin` sets it. The flag is
+load-bearing rather than decorative: every registered user holds a session, so
+without it the sign-up form would be the way into the admin. Clearing `is_staff`
+or `is_active` takes effect on the account's next request.
 
 The admin authenticates through the session, which is why the session middleware
 is registered where it is in `bootstrap.py` — and why it stays on even if you
@@ -471,8 +492,15 @@ Collected from actually running this, not from reading the source.
    name, so the framework's built-in `User` would displace this project's own
    and its extra columns would never be created — with no error.
 
-8. **Schema generation is off on purpose.** See
-   [Database and migrations](#database-and-migrations).
+8. **Do not add `sillo.admin.default_user` to `model_modules` either.** It
+   holds the admin's fallback `AdminUser`, which this project replaces with its
+   own — registering it creates an `admin_users` table nothing writes to.
+
+9. **The admin's login form field is `email`, not `username`.** It accepts
+   either value, but the form field is named `email`.
+
+10. **Schema generation is off on purpose.** See
+    [Database and migrations](#database-and-migrations).
 
 ## Licence
 

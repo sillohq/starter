@@ -16,6 +16,12 @@ from app.config import config
 #: Modules scanned for models. A model that is not imported in this package's
 #: ``__init__`` is invisible to the ORM, and the first query fails with
 #: "default_connection cannot be None" rather than anything about the import.
+#:
+#: ``sillo.admin.models`` is the admin's activity log, which every admin site
+#: writes to. Its *default* user model lives in ``sillo.admin.default_user`` and
+#: is deliberately absent: this project signs people in to the admin with
+#: ``database.models.User``, so registering it would add an ``admin_users``
+#: table that nothing ever writes a row to.
 MODEL_MODULES = ["database.models", "sillo.admin.models"]
 
 #: Where migrations live, as a dotted path.

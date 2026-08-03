@@ -18,7 +18,9 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 import httpx  # noqa: E402
 
+from app.database import database  # noqa: E402
 from app.main import app  # noqa: E402
+from database.models.user import User  # noqa: E402
 
 
 class Lifespan:
@@ -48,6 +50,19 @@ class Lifespan:
             self.task.cancel()
 
 
+async def make_staff_account(email: str, username: str, password: str) -> None:
+    """Create an administrator before the application starts.
+
+    The ORM connection the app opens on startup lives in the startup task, so a
+    script cannot borrow it from out here. Opening our own first, and closing it
+    again, is simpler than reaching into the application's.
+    """
+    from sillo.users.commands import create_admin
+
+    async with database():
+        await create_admin(email, username, password, model=User)
+
+
 async def main() -> int:
     """Return 0 when every check passed, 1 otherwise."""
     failures: list[str] = []
@@ -57,6 +72,9 @@ async def main() -> int:
         print(f"  {'ok  ' if ok else 'FAIL'}  {label:34s} {actual}")
         if not ok:
             failures.append(f"{label}: expected {expected}, got {actual}")
+
+    staff = f"staff{uuid.uuid4().hex[:8]}"
+    await make_staff_account(f"{staff}@example.com", staff, "Hunter2!pass")
 
     async with Lifespan(app):
         transport = httpx.ASGITransport(app=app)
@@ -97,6 +115,18 @@ async def main() -> int:
                 json={"identifier": f"{suffix}@example.com", "password": "nope"},
             )
             check("POST /api/auth/login, bad password", wrong.status_code, 401)
+
+            # Signing in to the admin with an ordinary account, which is the
+            # point of there being one user model. Reaching the login page
+            # proves nothing: the form renders whether or not the credentials
+            # behind it are ever accepted.
+            signed_in = await client.post(
+                "/admin/login/",
+                data={"email": f"{staff}@example.com", "password": "Hunter2!pass"},
+            )
+            check("POST /admin/login/", signed_in.status_code, 302)
+            dashboard = await client.get("/admin/", cookies=signed_in.cookies)
+            check("GET /admin/ signed in", dashboard.status_code, 200)
 
     if failures:
         print("\n" + "\n".join(f"  {failure}" for failure in failures), file=sys.stderr)
