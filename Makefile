@@ -5,8 +5,8 @@
 # hand when you need to vary it.
 
 .DEFAULT_GOAL := help
-.PHONY: help setup install migrate migration rollback history dev serve worker \
-        scheduler admin users test smoke lint format check clean plan
+.PHONY: help setup install migrate migration plan rollback admin users \
+        dev serve worker scheduler test smoke lint format check clean
 
 PY  := uv run
 APP := app.main:app
@@ -19,14 +19,19 @@ help:  ## Show this help
 
 # -- setup -------------------------------------------------------------
 
+# The placeholder key is replaced rather than copied: a starter whose
+# SECRET_KEY is the same in every clone is a starter that signs every
+# deployment's sessions with a published secret.
 setup: install ## Install dependencies, create .env, and set the database up
-	@test -f .env || (cp .env.example .env && echo "  created .env — change the secrets before deploying")
+	@test -f .env || (cp .env.example .env \
+	  && $(PY) python -c "import pathlib, secrets; p = pathlib.Path('.env'); p.write_text(p.read_text().replace('generate-me', secrets.token_urlsafe(48)))" \
+	  && echo "  created .env with a fresh SECRET_KEY")
 	@$(MAKE) migrate
 	@echo "  ready. run: make dev"
 
+# --all-extras because a cloned starter is a development environment:
+# pytest, ruff and httpx are wanted from the first minute.
 install:  ## Install Python dependencies, including the dev tools
-	# --all-extras because a cloned starter is a development environment:
-	# pytest, ruff and httpx are wanted from the first minute.
 	uv sync --all-extras
 
 # -- database ----------------------------------------------------------
@@ -46,9 +51,13 @@ plan:  ## Show which migrations would run
 	$(CONSOLE) db plan
 
 rollback:  ## Roll back to a migration. make rollback to=0001_initial
+	@test -n "$(to)" || (echo "  need a target: make rollback to=0001_initial"; exit 1)
 	$(CONSOLE) db rollback "$(to)"
 
+# Guarded, because the console would otherwise be handed empty strings and
+# report a validation failure that says nothing about the missing argument.
 admin:  ## Create an administrator account. make admin e=ada@x.com u=ada
+	@test -n "$(e)" -a -n "$(u)" || (echo "  need both: make admin e=ada@x.com u=ada"; exit 1)
 	$(CONSOLE) user admin "$(e)" "$(u)"
 
 users:  ## List users

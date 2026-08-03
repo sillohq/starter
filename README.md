@@ -96,9 +96,10 @@ it needs nothing beyond argparse.
 | `make install` | Install Python dependencies |
 | `make migrate` | Create the database and apply pending migrations |
 | `make migration m="add_posts"` | Write a migration from model changes and apply it |
+| `make plan` | Show which migrations would run |
 | `make rollback to=0001_initial` | Roll the database back |
-| `make history` | Show which migrations have been applied |
-| `make admin` | Create an administrator |
+| `make admin e=ada@x.com u=ada` | Create an administrator |
+| `make users` | List users |
 | `make dev` | Run with reload |
 | `make serve` | Run as production would, with workers |
 | `make worker` / `make scheduler` | Background processes, once enabled |
@@ -286,7 +287,7 @@ the session regardless of what the rest of the application uses.
 At `/admin/` — note the trailing slash, the routes need it.
 
 ```bash
-make admin
+make admin e=ada@example.com u=ada
 ```
 
 Registration lives in `app/admin.py`, inside `register_admin`. To add a model:
