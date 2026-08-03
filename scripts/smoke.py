@@ -18,8 +18,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 import httpx  # noqa: E402
 
-from app.database import database  # noqa: E402
 from app.main import app  # noqa: E402
+from database.config import database  # noqa: E402
 from database.models.user import User  # noqa: E402
 
 
@@ -61,6 +61,15 @@ async def make_staff_account(email: str, username: str, password: str) -> None:
 
     async with database():
         await create_admin(email, username, password, model=User)
+
+
+async def _logged_in() -> bool:
+    """Whether the admin recorded a login. Opens its own connection, like the
+    account creation above, because the application's belongs to its own task."""
+    from sillo.admin import AdminActivity
+
+    async with database():
+        return await AdminActivity.filter(action="login").exists()
 
 
 async def main() -> int:
@@ -127,6 +136,13 @@ async def main() -> int:
             check("POST /admin/login/", signed_in.status_code, 302)
             dashboard = await client.get("/admin/", cookies=signed_in.cookies)
             check("GET /admin/ signed in", dashboard.status_code, 200)
+
+            # The audit log is registered by default, so it has a table and the
+            # admin lists it. Reaching the page is the part that breaks when the
+            # model is registered with the admin but not with the ORM.
+            log = await client.get("/admin/adminactivity/", cookies=signed_in.cookies)
+            check("GET /admin/adminactivity/", log.status_code, 200)
+            check("the sign-in was recorded", await _logged_in(), True)
 
     if failures:
         print("\n" + "\n".join(f"  {failure}" for failure in failures), file=sys.stderr)

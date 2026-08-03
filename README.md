@@ -114,12 +114,12 @@ app/
   main.py         ASGI entrypoint — `uvicorn app.main:app`
   bootstrap.py    Application assembly. Start reading here
   config.py       Typed settings, loaded from the environment
-  database.py     How this project connects — app and migrations share it
   admin.py        Admin panel registration
   templating.py   Jinja setup
   jobs/           Queue jobs
   tasks/          Scheduled tasks
 database/
+  config.py       How this project connects — app and migrations share it
   models/         Your models. `user.py` is provided
   migrations/     Generated migrations — commit these
 routes/
@@ -197,8 +197,9 @@ Migrations are applied and recorded by sillo Record, tracked in the
 `tortoise_migrations` table. Commit the files in `database/migrations/` — they
 are part of the project.
 
-There is no migration config file. `app/database.py` describes how the project
-connects, once, and both the application and the migration commands read it:
+There is no migration config file. `database/config.py` describes how the
+project connects, once, and both the application and the migration commands read
+it — it sits beside the models it registers and the migrations it points at:
 
 ```python
 def database() -> DatabaseManager:
@@ -211,7 +212,7 @@ Change the connection there and migrations follow, with nothing to keep in step
 by hand. It is also how a script of your own opens the database:
 
 ```python
-from app.database import database
+from database.config import database
 
 async with database():
     await User.all()
@@ -314,10 +315,13 @@ That works because both the admin's default user model and yours extend
 AdminSite(title="…", prefix=config.admin_prefix, user_model=User)
 ```
 
-`app/database.py` registers this project's models and nothing else, so a fresh
-database holds one table for people: `users`. `sillo.admin` ships its own user
-model and an activity log; registering either would add tables parallel to
-`users` — a second set of accounts to keep in step, or to forget about.
+`database/config.py` registers this project's models and the admin's activity
+log, so a fresh database holds one table for people — `users` — plus
+`admin_activity`, which records who changed what and when.
+
+What it does **not** register is `sillo.admin.default_user`, the admin's
+fallback user model. That would add a second set of accounts beside `users` to
+keep in step, or to forget about.
 
 `User` also declares `password = PasswordField()`. `UserBaseModel` types that
 column as a plain `CharField`, which stores exactly what it is handed, so
@@ -326,9 +330,10 @@ complaint. `PasswordField` hashes on the way to the database, and is what
 `sillo.admin`'s own user model uses — declaring it is what makes this model the
 same kind of thing.
 
-To keep the admin's audit log, add `"sillo.admin.models"` to `MODEL_MODULES` and
-run `make migration m="admin activity"`. Without it the log simply records
-nothing; the admin works either way.
+To drop the audit log, remove `"sillo.admin.models"` from `MODEL_MODULES` and
+run `make migration m="drop activity log"`. The admin works either way — without
+the table it records nothing, and the entry disappears from the sidebar rather
+than leading to an error.
 
 An account needs `is_staff` to get in, and `make admin` sets it. The flag is
 load-bearing rather than decorative: every registered user holds a session, so
@@ -503,9 +508,11 @@ Collected from actually running this, not from reading the source.
    name, so the framework's built-in `User` would displace this project's own
    and its extra columns would never be created — with no error.
 
-8. **Do not add anything from `sillo.admin` to `model_modules`.** Its
+8. **Do not add `sillo.admin.default_user` to `MODEL_MODULES`.** Its
    `AdminUser` would sit beside your `User` as a second set of accounts, and
    its `AdminRole` beside that. This project has one user model.
+   `sillo.admin.models` is a different thing — the activity log — and is
+   registered on purpose.
 
 9. **The admin's login form field is `email`, not `username`.** It accepts
    either value, but the form field is named `email`.

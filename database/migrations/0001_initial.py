@@ -8,6 +8,24 @@ class Migration(migrations.Migration):
 
     operations = [
         ops.CreateModel(
+            name='AdminActivity',
+            fields=[
+                ('id', fields.IntField(generated=True, primary_key=True, unique=True, db_index=True)),
+                ('created_at', CreatedAtField()),
+                ('updated_at', UpdatedAtField()),
+                ('deleted_at', SoftDeleteField(null=True)),
+                ('user_email', fields.CharField(max_length=255)),
+                ('action', fields.CharField(max_length=50)),
+                ('model_name', fields.CharField(max_length=100)),
+                ('object_id', fields.CharField(null=True, max_length=50)),
+                ('detail', fields.TextField(null=True, unique=False)),
+                ('ip_address', fields.CharField(null=True, max_length=50)),
+                ('user_agent', fields.TextField(null=True, unique=False)),
+            ],
+            options={'table': 'admin_activity', 'app': 'models', 'pk_attr': 'id', 'table_description': 'Tracks every admin action for audit purposes.'},
+            bases=['Model'],
+        ),
+        ops.CreateModel(
             name='User',
             fields=[
                 ('created_at', CreatedAtField()),

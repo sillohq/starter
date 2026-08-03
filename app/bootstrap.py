@@ -162,7 +162,7 @@ def _register_database(application: silloApp) -> None:
     per-request context middleware, and stores the manager on
     ``application.state["record"]`` for health checks.
     """
-    from app.database import MODEL_MODULES, database_config
+    from database.config import MODEL_MODULES, database_config
 
     setup_record(application, database_config(), model_modules=MODEL_MODULES)
 

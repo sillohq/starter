@@ -12,7 +12,7 @@ replaces it outright rather than adapting to it.
 
 Three constraints are worth knowing before you edit this file:
 
-* Only the modules listed in ``MODEL_MODULES`` (see ``app/database.py``) are
+* Only the modules listed in ``MODEL_MODULES`` (see ``database/config.py``) are
   registered with the ORM, and models are keyed by class name. Do not add
   ``sillo.users`` to that list — its built-in ``User`` would displace this one
   and your extra columns would silently stop being created. Do not add

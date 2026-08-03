@@ -34,7 +34,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from app.config import config  # noqa: E402
-from app.database import MIGRATIONS_MODULE, database  # noqa: E402
+from database.config import MIGRATIONS_MODULE, database  # noqa: E402
 
 # -- database ----------------------------------------------------------
 
