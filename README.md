@@ -314,10 +314,21 @@ That works because both the admin's default user model and yours extend
 AdminSite(title="…", prefix=config.admin_prefix, user_model=User)
 ```
 
-`app/database.py` therefore registers `sillo.admin.models` — the activity log,
-which the admin writes to — but **not** `sillo.admin.default_user`. That module
-holds the fallback `AdminUser`, and registering it would add an `admin_users`
-table this project would never write a row to.
+`app/database.py` registers this project's models and nothing else, so a fresh
+database holds one table for people: `users`. `sillo.admin` ships its own user
+model and an activity log; registering either would add tables parallel to
+`users` — a second set of accounts to keep in step, or to forget about.
+
+`User` also declares `password = PasswordField()`. `UserBaseModel` types that
+column as a plain `CharField`, which stores exactly what it is handed, so
+`user.password = "hunter2"` followed by `save()` writes the plaintext without
+complaint. `PasswordField` hashes on the way to the database, and is what
+`sillo.admin`'s own user model uses — declaring it is what makes this model the
+same kind of thing.
+
+To keep the admin's audit log, add `"sillo.admin.models"` to `MODEL_MODULES` and
+run `make migration m="admin activity"`. Without it the log simply records
+nothing; the admin works either way.
 
 An account needs `is_staff` to get in, and `make admin` sets it. The flag is
 load-bearing rather than decorative: every registered user holds a session, so
@@ -492,9 +503,9 @@ Collected from actually running this, not from reading the source.
    name, so the framework's built-in `User` would displace this project's own
    and its extra columns would never be created — with no error.
 
-8. **Do not add `sillo.admin.default_user` to `model_modules` either.** It
-   holds the admin's fallback `AdminUser`, which this project replaces with its
-   own — registering it creates an `admin_users` table nothing writes to.
+8. **Do not add anything from `sillo.admin` to `model_modules`.** Its
+   `AdminUser` would sit beside your `User` as a second set of accounts, and
+   its `AdminRole` beside that. This project has one user model.
 
 9. **The admin's login form field is `email`, not `username`.** It accepts
    either value, but the form field is named `email`.
