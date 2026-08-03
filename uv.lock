@@ -669,7 +669,7 @@ wheels = [
 
 [[package]]
 name = "sillo-framework"
-version = "0.0.1a4"
+version = "0.0.1a5"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "anyio" },
@@ -680,9 +680,9 @@ dependencies = [
     { name = "python-multipart" },
     { name = "uvicorn" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/d6/2c/1015879f27d49fa24a28ae69599e1e1dd9ca002412dffe9d665c83f4bb7f/sillo_framework-0.0.1a4.tar.gz", hash = "sha256:921300db5440d1e97a89e59afcd966d5eb44fee92bc2eca2f78ecd7d313869a1", size = 3069710, upload-time = "2026-08-02T23:15:32.682Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/16/de/0eecce1071ab753d267ac6a1309c2a95182f3c449a6dd4ff54f31012945d/sillo_framework-0.0.1a5.tar.gz", hash = "sha256:b506440be2353143dbb95036d080ea91150f2b1fb4c33ae0862f83a2ce7355e4", size = 3069366, upload-time = "2026-08-03T20:20:25.529Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/83/3d/9ccf5615ac6985a0d186e1a704bffae07f6abea3863306152b09450f6856/sillo_framework-0.0.1a4-py3-none-any.whl", hash = "sha256:9758f588e253a00e461b9831fec23322c71be6bb75189082b30dc58c70ab254e", size = 825534, upload-time = "2026-08-02T23:15:30.29Z" },
+    { url = "https://files.pythonhosted.org/packages/cf/5b/2864d10f0999ef35874a7a39eaeaf01fb6c3c7832fc37c30fdfa38d7bdac/sillo_framework-0.0.1a5-py3-none-any.whl", hash = "sha256:319de19f5605ca14f52c75f10bc0676aa901a9ed4beba3f2ecf2c534ec62ee01", size = 827166, upload-time = "2026-08-03T20:20:23.795Z" },
 ]
 
 [package.optional-dependencies]
@@ -710,7 +710,6 @@ dependencies = [
     { name = "aiosqlite" },
     { name = "email-validator" },
     { name = "sillo-framework", extra = ["cache", "hashing-bcrypt", "jwt", "record", "templating"] },
-    { name = "tortoise-orm" },
 ]
 
 [package.optional-dependencies]
@@ -731,8 +730,7 @@ requires-dist = [
     { name = "pytest", marker = "extra == 'dev'", specifier = ">=8.3.5" },
     { name = "pytest-asyncio", marker = "extra == 'dev'", specifier = ">=0.25.3" },
     { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.6.0" },
-    { name = "sillo-framework", extras = ["cache", "hashing-bcrypt", "jwt", "record", "templating"], specifier = ">=0.0.1a4" },
-    { name = "tortoise-orm", specifier = ">=1.0" },
+    { name = "sillo-framework", extras = ["cache", "hashing-bcrypt", "jwt", "record", "templating"], specifier = ">=0.0.1a5" },
 ]
 provides-extras = ["dev"]
 
