@@ -14,7 +14,6 @@ from sillo.auth.session_auth import login as start_session
 from sillo.auth.session_auth import logout as end_session
 from sillo.core.http import Request, Response
 
-from app.jobs import SendWelcomeEmail
 from database.models.user import User
 
 router = Router(prefix="/api/auth", tags=["auth"])
@@ -62,12 +61,6 @@ async def register(request: Request, response: Response, payload) -> Response:
         username=payload.username,
         password=payload.password,
     )
-
-    # Queued, not awaited: the reply should not wait on a mail server, and a
-    # mail server being down should not fail a sign-up. Dispatching the id
-    # rather than the user is deliberate — see app/jobs/welcome_email.py.
-    await SendWelcomeEmail.dispatch(user.id)
-
     return response.json(_serialize(user), status_code=201)
 
 

@@ -48,15 +48,15 @@ def create_app() -> silloApp:
     _register_templating()
     _register_middleware(application)
     _register_database(application)
-    # Background work, with the worker inside this process and the default
-    # in-memory queue — no Redis, nothing else to run. app/jobs/ has a worked
-    # example, dispatched from the sign-up route.
+    # Background work is wired but switched off. Uncomment this line when you
+    # have a job or a scheduled task worth running. See app/jobs/ and
+    # app/tasks/, and run the worker with `make worker`.
     #
-    # Drop in_process=True to run the worker separately instead (`make
-    # worker`), which needs QUEUE_URL pointing at Redis to be worth anything:
-    # an in-memory queue is not shared between processes. See
-    # _run_worker_in_process for the rest of the trade.
-    _register_work(application, in_process=True)
+    # Pass in_process=True to run the worker inside this process instead, and
+    # not run `make worker` at all — see _run_worker_in_process for what that
+    # costs.
+    # _register_work(application)
+    # _register_work(application, in_process=True)
     _register_static(application)
     _register_routes(application)
 

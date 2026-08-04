@@ -402,34 +402,19 @@ prefix subtree, so mount the most specific prefix first. Mounting `/api` before
 
 ## Background work
 
-On, with the worker inside the application process and the default in-memory
-queue — no Redis, nothing else to run. `app/bootstrap.py`:
+The worker and scheduler are written and ready, and switched off. In
+`app/bootstrap.py`:
 
 ```python
-_register_work(application, in_process=True)
+# _register_work(application)
 ```
 
-`app/jobs/welcome_email.py` is a worked example, dispatched from the sign-up
-route:
+Uncomment it, then:
 
-```python
-# routes/auth.py
-await SendWelcomeEmail.dispatch(user.id)
+```bash
+make worker
+make scheduler
 ```
-
-Queued rather than awaited, so the reply does not wait on a mail server and a
-mail server being down does not fail a sign-up. **Dispatch the id, not the
-user** — arguments are written to the queue and read back, so they must be
-plain data, and a row serialised at dispatch is the row as it was then. The job
-loads it when it runs.
-
-The smoke test asserts the job actually ran, because a job that is queued and
-never delivered looks exactly like one that worked.
-
-To run the worker separately instead, drop `in_process=True` and use
-`make worker`. That is only worth doing with `QUEUE_URL` pointing at Redis: the
-in-memory queue lives inside one process, so a separate worker would sit
-watching a queue nothing writes to.
 
 ### The worker in the same process
 
@@ -453,11 +438,9 @@ its own worker, and the in-memory queue is neither shared between them nor kept
 across a restart. At that point run `make worker` separately and point
 `QUEUE_URL` at Redis.
 
-Jobs go in `app/jobs/`, imported in that package's `__init__.py` so you can
-find them from one place. A job must be a **module-level class**: the worker
-imports it by the module path recorded when it was dispatched, so a class
-defined inside a function, or in a script run as `__main__`, cannot be resolved
-by a separate worker process. Scheduled tasks go in `app/tasks/`.
+Jobs go in `app/jobs/` and must be imported in that package's `__init__.py` so
+the worker can resolve a queued payload back to the class that handles it.
+Scheduled tasks go in `app/tasks/`.
 
 The default queue is in-memory, which means jobs are lost on restart and are not
 shared between processes. Set `QUEUE_URL=redis://localhost:6379` before relying
