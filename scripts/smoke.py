@@ -10,6 +10,7 @@ this does.
 from __future__ import annotations
 
 import asyncio
+import logging
 import sys
 import uuid
 from pathlib import Path
@@ -72,6 +73,26 @@ async def _logged_in() -> bool:
         return await AdminActivity.filter(action="login").exists()
 
 
+class _CaptureJobLogs(logging.Handler):
+    """Collect what app.jobs logs, so a check can see a job actually ran."""
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.messages: list[str] = []
+
+    def emit(self, record: logging.LogRecord) -> None:
+        self.messages.append(record.getMessage())
+
+
+async def _job_ran(handler: _CaptureJobLogs, seconds: float = 4.0) -> bool:
+    """Wait briefly for the queued job to be handled."""
+    for _ in range(int(seconds * 20)):
+        if any("welcome email" in message for message in handler.messages):
+            return True
+        await asyncio.sleep(0.05)
+    return False
+
+
 async def main() -> int:
     """Return 0 when every check passed, 1 otherwise."""
     failures: list[str] = []
@@ -81,6 +102,11 @@ async def main() -> int:
         print(f"  {'ok  ' if ok else 'FAIL'}  {label:34s} {actual}")
         if not ok:
             failures.append(f"{label}: expected {expected}, got {actual}")
+
+    jobs_log = _CaptureJobLogs()
+    job_logger = logging.getLogger("app.jobs")
+    job_logger.setLevel(logging.INFO)
+    job_logger.addHandler(jobs_log)
 
     staff = f"staff{uuid.uuid4().hex[:8]}"
     await make_staff_account(f"{staff}@example.com", staff, "Hunter2!pass")
@@ -114,6 +140,10 @@ async def main() -> int:
                 },
             )
             check("POST /api/auth/register", created.status_code, 201)
+            # Registering queues a welcome email. The worker runs inside this
+            # process, so the job should be delivered within a moment — and a
+            # job that is queued but never runs is the failure worth catching.
+            check("welcome email job ran", await _job_ran(jobs_log), True)
             signed_in = await client.post(
                 "/api/auth/login",
                 json={"identifier": f"{suffix}@example.com", "password": "Hunter2!pass"},
