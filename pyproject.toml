@@ -9,7 +9,7 @@ description = ""
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
-    "sillo-framework[cache,hashing-bcrypt,jwt,record,templating]>=0.0.1a7",
+    "sillo-framework[cache,hashing-bcrypt,jwt,record,templating]>=0.0.1a8",
     "email-validator>=2.0.0",
     # The SQLite driver. Swap for asyncpg or asyncmy when you change DATABASE_URL.
     "aiosqlite>=0.19.0",
