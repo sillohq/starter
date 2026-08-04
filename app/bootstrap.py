@@ -48,10 +48,15 @@ def create_app() -> silloApp:
     _register_templating()
     _register_middleware(application)
     _register_database(application)
-    # Background work is wired but switched off. Uncomment this line, and the
-    # `worker` and `scheduler` entries in the Makefile, when you have a job or
-    # a scheduled task worth running. See app/jobs/ and app/tasks/.
+    # Background work is wired but switched off. Uncomment this line when you
+    # have a job or a scheduled task worth running. See app/jobs/ and
+    # app/tasks/, and run the worker with `make worker`.
+    #
+    # Pass in_process=True to run the worker inside this process instead, and
+    # not run `make worker` at all — see _run_worker_in_process for what that
+    # costs.
     # _register_work(application)
+    # _register_work(application, in_process=True)
     _register_static(application)
     _register_routes(application)
 
@@ -167,19 +172,78 @@ def _register_database(application: silloApp) -> None:
     setup_record(application, database_config(), model_modules=MODEL_MODULES)
 
 
-def _register_work(application: silloApp) -> None:
+def _register_work(application: silloApp, *, in_process: bool = False) -> None:
     """Start the queue connection and scheduler alongside the application.
 
     Not called by default — see create_app(). Left here complete rather than
     deleted so switching queues on is uncommenting one line, not going and
     reading how it was meant to be wired.
+
+    Args:
+        in_process: Also run a worker inside this process, so `console.py
+            worker` is not needed. See :func:`_run_worker_in_process`.
     """
-    setup_work(application, queue_name="default")
+    from sillo.work.queue import Job
+
+    work = setup_work(application, queue_name="default")
+
+    # Every job class dispatches into this connection. Without it the first
+    # dispatch raises "No queue connection configured for <Job>", naming the
+    # job rather than the wiring.
+    Job.on_connection(work["connection"])
+
+    # Importing the package registers the job classes, so a queued payload can
+    # be resolved back to the class that handles it.
+    import app.jobs  # noqa: F401
 
     # Importing the module registers its scheduled tasks against the manager.
     from app.tasks import register_tasks
 
     register_tasks(application)
+
+    if in_process:
+        _run_worker_in_process(application, work["connection"])
+
+
+def _run_worker_in_process(application: silloApp, connection) -> None:
+    """Run the queue worker inside the application process.
+
+    One process instead of two: convenient in development, and reasonable for a
+    small single-instance deployment. Two things make it work.
+
+    The worker is built on the *same* connection the application dispatches
+    into. Build it from a URL instead and you get a second, separate queue —
+    jobs go in one and the worker drains the other, and nothing appears to
+    happen.
+
+    It runs as a background task, because ``worker.run()`` does not return until
+    the worker is stopped, and a startup hook that never returns is an
+    application that never finishes starting.
+
+    Know what you are trading away. The worker shares an event loop with request
+    handling, so a job that blocks blocks responses; with more than one
+    application process each gets its own worker, and an in-memory queue is not
+    shared between them or kept across a restart. At that point run
+    ``console.py worker`` separately and set ``QUEUE_URL`` to Redis.
+    """
+    import asyncio
+
+    from sillo.work.commands import build_worker
+
+    worker = build_worker(connection=connection, queues=["default"], concurrency=4)
+    state: dict = {}
+
+    async def start() -> None:
+        state["task"] = asyncio.create_task(worker.run())
+
+    async def stop() -> None:
+        worker.stop()
+        task = state.get("task")
+        if task is not None:
+            task.cancel()
+
+    application.on_startup(start)
+    application.on_shutdown(stop)
 
 
 def _register_routes(application: silloApp) -> None:

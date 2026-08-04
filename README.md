@@ -416,6 +416,28 @@ make worker
 make scheduler
 ```
 
+### The worker in the same process
+
+To skip the separate process entirely — useful in development, and reasonable
+for a small single-instance deployment — pass `in_process=True` instead:
+
+```python
+_register_work(application, in_process=True)
+```
+
+The application then runs its own worker, on the same queue it dispatches into,
+and `make worker` is not needed. Two things make that work, and both are easy to
+get wrong by hand: the worker is built from the application's *connection*
+rather than from a URL, so jobs go in and come out of the same queue; and it
+runs as a background task, because `worker.run()` does not return until the
+worker stops.
+
+What it costs: the worker shares an event loop with request handling, so a job
+that blocks blocks responses. With more than one application process each gets
+its own worker, and the in-memory queue is neither shared between them nor kept
+across a restart. At that point run `make worker` separately and point
+`QUEUE_URL` at Redis.
+
 Jobs go in `app/jobs/` and must be imported in that package's `__init__.py` so
 the worker can resolve a queued payload back to the class that handles it.
 Scheduled tasks go in `app/tasks/`.
