@@ -669,7 +669,7 @@ wheels = [
 
 [[package]]
 name = "sillo-framework"
-version = "0.0.1a8"
+version = "0.0.1a14"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "anyio" },
@@ -680,9 +680,9 @@ dependencies = [
     { name = "python-multipart" },
     { name = "uvicorn" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/0c/3f/4d6adf24019a7d5eb34921e1499c9429276edddb1278735d1bff94532a49/sillo_framework-0.0.1a8.tar.gz", hash = "sha256:dfe5e10996461fa927d7642cf2d17864e996b444b60a3d23939e4c3562e084f9", size = 3077377, upload-time = "2026-08-04T09:39:28.898Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/c4/85/f5bf01f4a428289abe2a485d0326bdc369e3173e7714eb02ac4dfe2239e2/sillo_framework-0.0.1a14.tar.gz", hash = "sha256:9b926d9714127c76f014e41b4f078ea7c150f599fa172f827ade8e597a71f1ca", size = 3228387, upload-time = "2026-08-06T23:47:07.692Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/10/1d/f2bc79e7ad05fdac9edd5835f8396dee4386aca90edfc017117f4c1af188/sillo_framework-0.0.1a8-py3-none-any.whl", hash = "sha256:a03d85af34a58db312c25a84b2f2f1787dda020a64d8f4476accd179744dc158", size = 830636, upload-time = "2026-08-04T09:39:26.906Z" },
+    { url = "https://files.pythonhosted.org/packages/0b/14/34f904b23069f2eb68e1de54b96afd0f7a5d07e124f0b8f80e35516f66ff/sillo_framework-0.0.1a14-py3-none-any.whl", hash = "sha256:e94d794cd324e72cb98cc3663b7b1d3a3f7d42590f71605a7f80e2e6ee06a461", size = 902846, upload-time = "2026-08-06T23:47:06.314Z" },
 ]
 
 [package.optional-dependencies]
@@ -730,7 +730,7 @@ requires-dist = [
     { name = "pytest", marker = "extra == 'dev'", specifier = ">=8.3.5" },
     { name = "pytest-asyncio", marker = "extra == 'dev'", specifier = ">=0.25.3" },
     { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.6.0" },
-    { name = "sillo-framework", extras = ["cache", "hashing-bcrypt", "jwt", "record", "templating"], specifier = ">=0.0.1a8" },
+    { name = "sillo-framework", extras = ["cache", "hashing-bcrypt", "jwt", "record", "templating"], specifier = ">=0.0.1a14" },
 ]
 provides-extras = ["dev"]
 

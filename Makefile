@@ -36,32 +36,37 @@ install:  ## Install Python dependencies, including the dev tools
 
 # -- database ----------------------------------------------------------
 
-# Everything goes through console.py, which calls sillo.record.commands,
-# sillo.users.commands and sillo.work.commands. No CLI tool is needed — the
-# project is self-contained.
-CONSOLE := $(PY) python console.py
+# Everything goes through the `sillo` command, which finds the application and
+# derives its commands from it: the database manager and scheduler it set up,
+# the user model it authenticates against, and whatever this project registers
+# with app.add_command. There is no console file to maintain.
+CONSOLE := $(PY) sillo
 
+# The bootstrap on the first line is what makes this work on a fresh clone,
+# where there is no migration to apply yet. It only runs when the migrations
+# package is empty, so a later `make migrate` never writes one behind your back.
 migrate:  ## Create the database and apply every pending migration
-	$(CONSOLE) db migrate
+	@ls database/migrations/0*.py >/dev/null 2>&1 || ($(CONSOLE) db:init && $(CONSOLE) db:make initial)
+	$(CONSOLE) db:migrate
 
 migration:  ## Write a migration and apply it. make migration m="add_posts"
-	$(CONSOLE) db make "$(or $(m),update)" --apply
+	$(CONSOLE) db:make "$(or $(m),update)" --apply
 
 plan:  ## Show which migrations would run
-	$(CONSOLE) db plan
+	$(CONSOLE) db:plan
 
 rollback:  ## Roll back to a migration. make rollback to=0001_initial
 	@test -n "$(to)" || (echo "  need a target: make rollback to=0001_initial"; exit 1)
-	$(CONSOLE) db rollback "$(to)"
+	$(CONSOLE) db:rollback "$(to)"
 
 # Guarded, because the console would otherwise be handed empty strings and
 # report a validation failure that says nothing about the missing argument.
 admin:  ## Create an administrator account. make admin e=ada@x.com u=ada
 	@test -n "$(e)" -a -n "$(u)" || (echo "  need both: make admin e=ada@x.com u=ada"; exit 1)
-	$(CONSOLE) user admin "$(e)" "$(u)"
+	$(CONSOLE) user:admin "$(e)" "$(u)"
 
 users:  ## List users
-	$(CONSOLE) user list
+	$(CONSOLE) user:list
 
 # -- running -----------------------------------------------------------
 
@@ -73,10 +78,10 @@ serve:  ## Run the application as it would run in production
 
 # Uncomment _register_work(application) in app/bootstrap.py before using these.
 worker:  ## Run the queue worker
-	$(CONSOLE) worker
+	$(CONSOLE) queue:work
 
 scheduler:  ## Run the scheduled task runner
-	$(CONSOLE) scheduler
+	$(CONSOLE) schedule:run
 
 # -- quality -----------------------------------------------------------
 

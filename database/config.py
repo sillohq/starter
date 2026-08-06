@@ -51,7 +51,7 @@ def database_config() -> DatabaseConfig:
 def database() -> DatabaseManager:
     """A manager for this project's database.
 
-    What ``console.py`` hands to the migration commands, and what a script that
+    What the ``sillo`` command hands to the migration commands, and what a script that
     needs the ORM opens::
 
         async with database() as db:

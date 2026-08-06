@@ -70,26 +70,29 @@ make dev        # run with reload on http://localhost:8000
 Or without make, through the project's own console:
 
 ```bash
-uv run python console.py                    # every command
-uv run python console.py db migrate         # create the database, apply migrations
-uv run python console.py db make add_posts --apply
-uv run python console.py db plan
-uv run python console.py db rollback 0001_initial
-uv run python console.py user admin ada@example.com ada
-uv run python console.py user list
-uv run python console.py worker
-uv run python console.py scheduler
-uv run python console.py serve --reload
+uv run sillo                            # every command
+uv run sillo db:migrate                 # create the database, apply migrations
+uv run sillo db:make add_posts --apply
+uv run sillo db:plan
+uv run sillo db:rollback 0001_initial
+uv run sillo user:admin ada@example.com ada
+uv run sillo user:list
+uv run sillo queue:work
+uv run sillo schedule:run
+uv run sillo serve --reload
 ```
 
 `uv run` rather than plain `python`, because it always uses this project's
 environment. A virtual environment activated somewhere above this directory
 shadows it, and bare `python` then finds whatever sillo lives there — usually an
 older one, which fails with an ImportError or an AttributeError several frames
-deep. `console.py` checks for this and says so, but running it through `uv`
+deep. `sillo` reports this, but running it through `uv`
 avoids the question.
 
-`console.py` is a thin layer over `sillo.record.commands`,
+`sillo` derives these from the application: the database manager and
+scheduler it set up, the user model it authenticates against, and whatever this
+project registers with `app.add_command`. Underneath they are
+`sillo.record.commands`,
 `sillo.users.commands` and `sillo.work.commands`. The framework provides the
 operations and ships no command-line interface of its own; this file decides
 what to call them and how to print the result. Add your own commands to it —
@@ -135,7 +138,6 @@ routes/
   api.py          Everything else under /api
 templates/        Jinja templates
 static/           CSS, images, anything served as-is
-console.py        Management commands — see `python console.py`
 scripts/
   smoke.py        Boots the app and hits every route
 tests/
@@ -444,7 +446,7 @@ Scheduled tasks go in `app/tasks/`.
 
 The default queue is in-memory, which means jobs are lost on restart and are not
 shared between processes. Set `QUEUE_URL=redis://localhost:6379` before relying
-on it for anything — `console.py worker` reads it and picks the connection.
+on it for anything — `sillo queue:work` reads it and picks the connection.
 
 ## Testing
 

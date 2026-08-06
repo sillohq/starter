@@ -165,11 +165,20 @@ def _register_database(application: silloApp) -> None:
 
     ``setup_record`` registers the startup and shutdown hooks and the
     per-request context middleware, and stores the manager on
-    ``application.state["record"]`` for health checks.
-    """
-    from database.config import MODEL_MODULES, database_config
+    ``application.state["record"]`` — for health checks, and for the ``sillo``
+    command, which reads it to offer the migration and account commands.
 
-    setup_record(application, database_config(), model_modules=MODEL_MODULES)
+    The migrations package is set here rather than only where migrations run.
+    Serving an application does not need it, but the manager on ``app.state``
+    is the one ``sillo db:make`` reaches, and a manager that does not know
+    where migrations live cannot write one.
+    """
+    from database.config import MIGRATIONS_MODULE, MODEL_MODULES, database_config
+
+    manager = setup_record(
+        application, database_config(), model_modules=MODEL_MODULES
+    )
+    manager.set_migrations(MIGRATIONS_MODULE)
 
 
 def _register_work(application: silloApp, *, in_process: bool = False) -> None:
@@ -180,7 +189,7 @@ def _register_work(application: silloApp, *, in_process: bool = False) -> None:
     reading how it was meant to be wired.
 
     Args:
-        in_process: Also run a worker inside this process, so `console.py
+        in_process: Also run a worker inside this process, so `sillo
             worker` is not needed. See :func:`_run_worker_in_process`.
     """
     from sillo.work.queue import Job
@@ -224,7 +233,7 @@ def _run_worker_in_process(application: silloApp, connection) -> None:
     handling, so a job that blocks blocks responses; with more than one
     application process each gets its own worker, and an in-memory queue is not
     shared between them or kept across a restart. At that point run
-    ``console.py worker`` separately and set ``QUEUE_URL`` to Redis.
+    ``sillo queue:work`` separately and set ``QUEUE_URL`` to Redis.
     """
     import asyncio
 
