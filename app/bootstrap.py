@@ -175,9 +175,7 @@ def _register_database(application: silloApp) -> None:
     """
     from database.config import MIGRATIONS_MODULE, MODEL_MODULES, database_config
 
-    manager = setup_record(
-        application, database_config(), model_modules=MODEL_MODULES
-    )
+    manager = setup_record(application, database_config(), model_modules=MODEL_MODULES)
     manager.set_migrations(MIGRATIONS_MODULE)
 
 
