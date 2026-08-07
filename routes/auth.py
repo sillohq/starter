@@ -10,6 +10,7 @@ from __future__ import annotations
 
 from pydantic import BaseModel, EmailStr, Field
 from sillo import Router
+from sillo.auth import useAuth
 from sillo.auth.session_auth import login as start_session
 from sillo.auth.session_auth import logout as end_session
 from sillo.core.http import Request, Response
@@ -84,14 +85,12 @@ async def logout(request: Request, response: Response) -> Response:
     return response.json({"detail": "Signed out."})
 
 
-@router.get("/me", summary="The signed-in user")
+@router.get("/me", auth=useAuth(), summary="The signed-in user")
 async def me(request: Request, response: Response) -> Response:
-    """Return the authenticated user, or 401 when there is none.
+    """Return the authenticated user.
 
-    ``request.user`` is populated by the authentication middleware registered
-    in ``app.bootstrap``.
+    ``auth=useAuth()`` is the gate: unauthenticated requests are answered with
+    a 401 before this handler runs, and the route's securityScheme is written
+    into the OpenAPI spec — the gate and the document cannot drift apart.
     """
-    user = getattr(request, "user", None)
-    if user is None or not user.is_authenticated:
-        return response.json({"detail": "Not authenticated."}, status_code=401)
-    return response.json(_serialize(user))
+    return response.json(_serialize(request.user))
