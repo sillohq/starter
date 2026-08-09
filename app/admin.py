@@ -8,14 +8,14 @@ filters below take effect.
 
 from __future__ import annotations
 
-from sillo import silloApp
+from sillo import SilloApp
 from sillo.admin import AdminSite, ModelAdmin
 
 from app.config import config
 from database.models.user import User
 
 
-def register_admin(application: silloApp) -> AdminSite:
+def register_admin(application: SilloApp) -> AdminSite:
     """Build the admin site, register models, and mount it.
 
     Admin logins are checked against :class:`~database.models.user.User`, so

@@ -8,7 +8,7 @@ module-level code means tests can build an isolated instance, and the import in
 
 from __future__ import annotations
 
-from sillo import silloApp
+from sillo import SilloApp
 from sillo.auth import AuthenticationMiddleware
 from sillo.auth.session_auth import SessionAuthBackend
 
@@ -26,9 +26,9 @@ from app.config import config, cors_origins
 from database.models.user import User
 
 
-def create_app() -> silloApp:
+def create_app() -> SilloApp:
     """Build and return the configured application."""
-    application = silloApp(
+    application = SilloApp(
         debug=config.debug,
         title=config.app_name,
         version="0.1.0",
@@ -74,7 +74,7 @@ def _register_templating() -> None:
     setup(auto_reload=config.app_env == "local")
 
 
-def _register_static(application: silloApp) -> None:
+def _register_static(application: SilloApp) -> None:
     """Serve ./static at /static.
 
     Fine for development and small deployments. Put nginx or Caddy in front in
@@ -93,7 +93,7 @@ def _register_static(application: silloApp) -> None:
     )
 
 
-def _register_middleware(application: silloApp) -> None:
+def _register_middleware(application: SilloApp) -> None:
     """Attach middleware.
 
     ``application.use()`` builds the chain inside-out: the middleware
@@ -160,7 +160,7 @@ def _register_middleware(application: silloApp) -> None:
     )
 
 
-def _register_database(application: silloApp) -> None:
+def _register_database(application: SilloApp) -> None:
     """Wire the Record ORM into the application lifecycle.
 
     ``setup_record`` registers the startup and shutdown hooks and the
@@ -179,7 +179,7 @@ def _register_database(application: silloApp) -> None:
     manager.set_migrations(MIGRATIONS_MODULE)
 
 
-def _register_work(application: silloApp, *, in_process: bool = False) -> None:
+def _register_work(application: SilloApp, *, in_process: bool = False) -> None:
     """Start the queue connection and scheduler alongside the application.
 
     Not called by default — see create_app(). Left here complete rather than
@@ -212,7 +212,7 @@ def _register_work(application: silloApp, *, in_process: bool = False) -> None:
         _run_worker_in_process(application, work["connection"])
 
 
-def _run_worker_in_process(application: silloApp, connection) -> None:
+def _run_worker_in_process(application: SilloApp, connection) -> None:
     """Run the queue worker inside the application process.
 
     One process instead of two: convenient in development, and reasonable for a
@@ -253,7 +253,7 @@ def _run_worker_in_process(application: silloApp, connection) -> None:
     application.on_shutdown(stop)
 
 
-def _register_routes(application: silloApp) -> None:
+def _register_routes(application: SilloApp) -> None:
     """Attach the application's routes.
 
     Order is significant. A router claims its whole prefix subtree, so the most
@@ -277,7 +277,7 @@ def _register_routes(application: silloApp) -> None:
     application.get("/", handler=web.welcome, name="welcome")
 
 
-def _register_admin(application: silloApp) -> None:
+def _register_admin(application: SilloApp) -> None:
     """Mount the admin panel and register its models."""
     from app.admin import register_admin
 
