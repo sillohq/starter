@@ -639,7 +639,7 @@ wheels = [
 
 [[package]]
 name = "sillo-framework"
-version = "0.0.2a1"
+version = "0.1.0b1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "anyio" },
@@ -650,9 +650,9 @@ dependencies = [
     { name = "python-multipart" },
     { name = "uvicorn" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/30/b3/1e9166721aca5c2509e7413a8cb79169d346551a3536edac4a1a5cb9daf4/sillo_framework-0.0.2a1.tar.gz", hash = "sha256:c2b5ff9fd2ac2cfc34b105b40a700ef5f95d89d7a65437f39fd3c93de40f9989", size = 3270472, upload-time = "2026-08-09T17:48:11.97Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/23/57/a9596e5b18fa9ff110fba173f964af1cf60edc0855c96bf8bfcef0e65668/sillo_framework-0.1.0b1.tar.gz", hash = "sha256:10cb691d92ee59a5df962d814162f84a82ccf6e959f51fd1047548a95dfa7983", size = 3295768, upload-time = "2026-08-13T01:38:56.009Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/05/73/2fadd6b00e83be88715893f08481f569345f9bf14727db39990932a02e74/sillo_framework-0.0.2a1-py3-none-any.whl", hash = "sha256:59775d015c1aafdd368ad4ce95c1576536cda6eaa4c8f7b7f24ef14051b4405b", size = 899877, upload-time = "2026-08-09T17:48:10.442Z" },
+    { url = "https://files.pythonhosted.org/packages/bf/78/435589eba9963a379df3853c794dd811b32a43a097e539741792bcf84cd5/sillo_framework-0.1.0b1-py3-none-any.whl", hash = "sha256:f76a0959e16737cfa714c9b7b5ce04aaf431bcd54606330d4da5bf5d6f324e2a", size = 905951, upload-time = "2026-08-13T01:38:54.398Z" },
 ]
 
 [package.optional-dependencies]
@@ -694,7 +694,7 @@ requires-dist = [
     { name = "pytest", marker = "extra == 'dev'", specifier = ">=8.3.5" },
     { name = "pytest-asyncio", marker = "extra == 'dev'", specifier = ">=0.25.3" },
     { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.6.0" },
-    { name = "sillo-framework", extras = ["hashing-bcrypt", "record", "templating"], specifier = ">=0.0.2a1" },
+    { name = "sillo-framework", extras = ["hashing-bcrypt", "record", "templating"], specifier = ">=0.1.0b1" },
 ]
 provides-extras = ["dev"]
 
