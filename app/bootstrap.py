@@ -38,12 +38,12 @@ def create_app() -> SilloApp:
     # puts the newest registration *outermost*, so whatever registers last runs
     # first at request time.
     #
-    # ``AdminSite.mount()`` attaches its own auth middleware through
-    # ``app.use()``, and that middleware reads ``request.session``. So the admin
-    # has to be registered *before* the middleware block, which is what leaves
-    # the session middleware outside — and therefore ahead — of it. Register it
-    # after, and every admin page 500s with "No Session Middleware Installed"
-    # while the session middleware is demonstrably installed.
+    # ``Admin.mount()`` attaches its own auth middleware through ``app.use()``,
+    # and that middleware reads ``ctx.session``. So the admin has to be
+    # registered *before* the middleware block, which is what leaves the session
+    # middleware outside — and therefore ahead — of it. Register it after, and
+    # every admin page 500s with "No Session Middleware Installed" while the
+    # session middleware is demonstrably installed.
     _register_admin(application)
     _register_templating()
     _register_middleware(application)
@@ -66,8 +66,8 @@ def create_app() -> SilloApp:
 def _register_templating() -> None:
     """Configure the Jinja environment before any page is rendered.
 
-    ``sillo.templating.render`` raises NotImplementedError until the engine has
-    been set up, so this is not optional for a project that serves HTML.
+    ``app.templating.render`` raises RuntimeError until the environment has been
+    built, so this is not optional for a project that serves HTML.
     """
     from app.templating import setup
 
@@ -135,7 +135,7 @@ def _register_middleware(application: SilloApp) -> None:
         )
     )
     # Registered after authentication so it ends up *outside* it and therefore
-    # runs first: SessionAuthBackend reads request.session, and the admin
+    # runs first: SessionAuthBackend reads ctx.session, and the admin
     # panel's SessionAuth backend does too. The admin needs this even when the
     # app authenticates with JWT, which is why the guard is uses_sessions
     # rather than session.enabled.

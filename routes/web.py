@@ -2,17 +2,17 @@
 
 One page. Handlers are registered individually in ``app/bootstrap.py`` rather
 than mounted as a router: a ``Router`` with no prefix claims ``""`` and
-everything beneath it, including the admin panel that mounts during startup.
+everything beneath it.
 """
 
 from __future__ import annotations
 
-from sillo.core.http import Request, Response
-from sillo.templating import render
+from sillo import HttpContext
 
 from app.config import config
+from app.templating import render
 
 
-async def welcome(request: Request, response: Response):
+async def welcome(ctx: HttpContext):
     """The landing page."""
-    return await render("welcome.html", {"app_name": config.app_name}, request=request)
+    return render("welcome.html", {"app_name": config.app_name})

@@ -20,16 +20,16 @@ from app.config import config
 #: ``__init__`` is invisible to the ORM, and the first query fails with
 #: "default_connection cannot be None" rather than anything about the import.
 #:
-#: ``sillo.admin.models`` is the admin's activity log: who changed what, and
-#: when. It is the one thing the admin brings its own table for, and it is
-#: worth having from the first day rather than after the first incident.
+#: ``warder.models`` is the admin's own tables -- the activity log of who
+#: changed what, and when. The admin is its own package in 1.0, so this is
+#: where that comes from now. Worth having from the first day rather than
+#: after the first incident.
 #:
-#: What is deliberately absent is ``sillo.admin.default_user``, which holds the
-#: admin's fallback user model. The people who administer this application are
-#: the people who use it, and ``database.models.User`` is who they are —
-#: registering that module would add a second set of accounts to keep in step,
-#: or to forget about.
-MODEL_MODULES = ["database.models", "sillo.admin.models"]
+#: The admin authenticates against ``database.models.User``: the people who
+#: administer this application are the people who use it. Pointing it at a
+#: separate admin user model would add a second set of accounts to keep in
+#: step, or to forget about.
+MODEL_MODULES = ["database.models", "warder.models"]
 
 #: Where migrations live, as a dotted path.
 MIGRATIONS_MODULE = "database.migrations"
