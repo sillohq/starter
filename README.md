@@ -326,20 +326,19 @@ AdminSite(title="…", prefix=config.admin_prefix, user_model=User)
 
 `database/config.py` registers this project's models and the admin's activity
 log, so a fresh database holds one table for people — `users` — plus
-`admin_activity`, which records who changed what and when.
+`warder_activity`, which records who changed what and when.
 
-What it does **not** register is `sillo.admin.default_user`, the admin's
-fallback user model. That would add a second set of accounts beside `users` to
-keep in step, or to forget about.
+What it does **not** register is warder's own `AdminUser`. That would add a
+second set of accounts beside `users` to keep in step, or to forget about.
 
 `User` also declares `password = PasswordField()`. `UserBaseModel` types that
 column as a plain `CharField`, which stores exactly what it is handed, so
 `user.password = "hunter2"` followed by `save()` writes the plaintext without
 complaint. `PasswordField` hashes on the way to the database, and is what
-`sillo.admin`'s own user model uses — declaring it is what makes this model the
+warder's own `AdminUser` model uses — declaring it is what makes this model the
 same kind of thing.
 
-To drop the audit log, remove `"sillo.admin.models"` from `MODEL_MODULES` and
+To drop the audit log, remove `"warder.models"` from `MODEL_MODULES` and
 run `make migration m="drop activity log"`. The admin works either way — without
 the table it records nothing, and the entry disappears from the sidebar rather
 than leading to an error.
@@ -358,15 +357,18 @@ move the rest of the app to JWT.
 One page, at `/`, rendered from `templates/welcome.html`. Replace it with
 whatever your application actually is.
 
-`app/templating.py` configures Jinja, and `create_app` sets it up before any
-page renders — without that, `render` raises `NotImplementedError`.
+Sillo 1.0 does not ship a templating layer, so `app/templating.py` owns the
+Jinja environment itself. `create_app` sets it up before any page renders —
+without that, `render` raises `RuntimeError`.
 
 ```python
-from sillo.templating import render
+from sillo import HttpContext
+
+from app.templating import render
 
 
-async def welcome(request, response):
-    return await render("welcome.html", {"app_name": config.app_name}, request=request)
+async def welcome(ctx: HttpContext):
+    return render("welcome.html", {"app_name": config.app_name})
 ```
 
 Pages are registered **individually** in `bootstrap.py`, not mounted as a
@@ -388,14 +390,14 @@ result, which fails as `'coroutine' object is not callable`.
 Routers under `/api`, documented at `/docs`.
 
 ```python
-from sillo import Router
+from sillo import HttpContext, Router, json
 
 router = Router(prefix="/api/posts", tags=["posts"])
 
 
 @router.get("/", summary="List posts")
-async def index(request, response):
-    return response.json([...])
+async def index(ctx: HttpContext):
+    return json([...])
 ```
 
 Mount it in `_register_routes`. **Order matters**: a router claims its whole
@@ -539,11 +541,10 @@ Collected from actually running this, not from reading the source.
    name, so the framework's built-in `User` would displace this project's own
    and its extra columns would never be created — with no error.
 
-8. **Do not add `sillo.admin.default_user` to `MODEL_MODULES`.** Its
-   `AdminUser` would sit beside your `User` as a second set of accounts, and
-   its `AdminRole` beside that. This project has one user model.
-   `sillo.admin.models` is a different thing — the activity log — and is
-   registered on purpose.
+8. **Do not register warder's `AdminUser` as a model of your own.** It would
+   sit beside your `User` as a second set of accounts. This project has one
+   user model. `warder.models` — the activity log — is a different thing, and
+   is registered on purpose.
 
 9. **The admin's login form field is `email`, not `username`.** It accepts
    either value, but the form field is named `email`.

@@ -66,10 +66,10 @@ async def make_staff_account(email: str, username: str, password: str) -> None:
 async def _logged_in() -> bool:
     """Whether the admin recorded a login. Opens its own connection, like the
     account creation above, because the application's belongs to its own task."""
-    from sillo.admin import AdminActivity
+    from warder.models import Activity
 
     async with database():
-        return await AdminActivity.filter(action="login").exists()
+        return await Activity.filter(action="login").exists()
 
 
 async def main() -> int:

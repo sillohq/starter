@@ -1,21 +1,22 @@
 """Admin panel.
 
-The site is built and populated before it is mounted. That order matters:
-mounting registers the user model with a default presentation if nothing has
-claimed it yet, so registering ``UserAdmin`` first is what lets the columns and
-filters below take effect.
+Sillo 1.0 does not ship an admin — it is its own package now, `warder`, which
+declares a resource as values rather than as class attributes on a subclass.
+
+The site is built and populated before it is mounted: `add` collects the
+declarations, `mount` is what attaches the routes.
 """
 
 from __future__ import annotations
 
 from sillo import SilloApp
-from sillo.admin import AdminSite, ModelAdmin
+from warder import Admin, Auth, Column, Filter, List, Resource
 
 from app.config import config
 from database.models.user import User
 
 
-def register_admin(application: SilloApp) -> AdminSite:
+def register_admin(application: SilloApp) -> Admin:
     """Build the admin site, register models, and mount it.
 
     Admin logins are checked against :class:`~database.models.user.User`, so
@@ -25,31 +26,49 @@ def register_admin(application: SilloApp) -> AdminSite:
     Returns:
         The mounted admin site.
     """
-    admin = AdminSite(
+    admin = Admin(
         title="Starter Admin",
         prefix=config.admin_prefix,
-        user_model=User,
+        auth=Auth(users=User),
+        # This project installs its own session middleware in app/bootstrap.py.
+        # Letting warder add a second one gives the request two sessions on two
+        # cookies, and the one that wins is whichever middleware is outermost --
+        # so a visitor signs in and the next request reads the other, empty one.
+        sessions=False,
     )
 
-    @admin.register(User)
-    class UserAdmin(ModelAdmin):
-        """How users are presented in the admin."""
-
-        verbose_name = "Users"
-        list_display = ["id", "email", "username", "is_active", "is_staff", "last_login"]
-        search_fields = ["email", "username"]
-        list_filter = ["is_active", "is_staff", "is_superuser"]
-        readonly_fields = ["last_login", "email_verified_at"]
-        ordering = ["-id"]
+    users = Resource(
+        User,
+        label="User",
+        plural="Users",
+        search=("email", "username"),
+        sort="-id",
+        list=List(
+            Column("id"),
+            Column("email", link=True),
+            Column("username"),
+            Column("is_active"),
+            Column("is_staff"),
+            Column("last_login"),
+            filters=(
+                Filter("bool", "is_active"),
+                Filter("bool", "is_staff"),
+                Filter("bool", "is_superuser"),
+            ),
+        ),
+    )
 
     # Register your own models the same way, before the mount call below:
     #
     #     from database.models.post import Post
     #
-    #     @admin.register(Post)
-    #     class PostAdmin(ModelAdmin):
-    #         list_display = ["id", "title", "created_at"]
-    #         search_fields = ["title"]
+    #     posts = Resource(
+    #         Post,
+    #         search=("title",),
+    #         list=List(Column("id"), Column("title", link=True), Column("created_at")),
+    #     )
+    #     admin.add(users, posts)
 
+    admin.add(users)
     admin.mount(application)
     return admin

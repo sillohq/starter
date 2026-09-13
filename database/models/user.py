@@ -6,7 +6,7 @@ a second table.
 
 ``sillo.users.UserBaseModel`` supplies the fields and behaviour authentication
 depends on — email, username, hashed password, the active/staff/superuser
-flags, and ``set_password``/``check_password``. ``sillo.admin``'s own user model
+flags, and ``set_password``/``check_password``. warder's own ``AdminUser`` model
 extends exactly the same base, which is why passing this one to ``AdminSite``
 replaces it outright rather than adapting to it.
 
@@ -16,7 +16,7 @@ Three constraints are worth knowing before you edit this file:
   registered with the ORM, and models are keyed by class name. Do not add
   ``sillo.users`` to that list — its built-in ``User`` would displace this one
   and your extra columns would silently stop being created. Do not add
-  ``sillo.admin.default_user`` either; that is the second table this file
+  warder's ``AdminUser`` either; that is the second table this file
   exists to avoid.
 * ``password`` is redeclared below, on purpose. The base class types it as a
   plain CharField.
@@ -41,7 +41,7 @@ class User(UserBaseModel):
     #: CharField, which stores exactly what it is handed — so
     #: ``user.password = "hunter2"`` followed by ``save()`` writes the
     #: plaintext, silently. ``PasswordField`` hashes on the way to the
-    #: database, and is what ``sillo.admin``'s own user model uses.
+    #: database, and is what warder's own ``AdminUser`` model uses.
     password = PasswordField()
 
     # Add your own profile fields here. The authentication fields are
