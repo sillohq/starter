@@ -79,7 +79,7 @@ uv run sillo user:admin ada@example.com ada
 uv run sillo user:list
 uv run sillo queue:work
 uv run sillo schedule:run
-uv run sillo serve --reload
+uv run sillo dev
 ```
 
 `uv run` rather than plain `python`, because it always uses this project's

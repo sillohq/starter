@@ -71,7 +71,7 @@ users:  ## List users
 # -- running -----------------------------------------------------------
 
 dev:  ## Run the application with reload
-	$(CONSOLE) serve --reload --host $(HOST) --port $(PORT)
+	$(CONSOLE) dev --host $(HOST) --port $(PORT)
 
 serve:  ## Run the application as it would run in production
 	$(PY) uvicorn $(APP) --host 0.0.0.0 --port $(PORT) --workers 4
