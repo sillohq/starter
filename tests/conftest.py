@@ -8,6 +8,7 @@ the scheduler.
 
 from __future__ import annotations
 
+import sys
 from pathlib import Path
 
 import pytest
@@ -22,6 +23,16 @@ def _isolated_database(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
     development one.
     """
     monkeypatch.setenv("DATABASE_URL", f"sqlite://{tmp_path / 'test.db'}")
+    monkeypatch.setenv("APP_ENV", "testing")
+    monkeypatch.setenv("DEBUG", "true")
+    for name in list(sys.modules):
+        if (
+            name == "app"
+            or name.startswith("app.")
+            or (name == "database" or name.startswith("database."))
+            or (name == "routes" or name.startswith("routes."))
+        ):
+            sys.modules.pop(name)
     yield
 
 

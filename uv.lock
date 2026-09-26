@@ -309,15 +309,6 @@ wheels = [
 ]
 
 [[package]]
-name = "itsdangerous"
-version = "2.2.0"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/9c/cb/8ac0172223afbccb63986cc25049b154ecfb5e85932587206f42317be31d/itsdangerous-2.2.0.tar.gz", hash = "sha256:e0050c0b7da1eea53ffaf149c0cfbb5c6e2e2b69c4bef22c81fa6eb73e5f6173", size = 54410, upload-time = "2024-04-16T21:28:15.614Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/04/96/92447566d16df59b2a776c0fb82dbc4d9e07cd95062562af01e408583fc4/itsdangerous-2.2.0-py3-none-any.whl", hash = "sha256:c6242fc49e35958c8b15141343aa660db5fc54d4f13a1db01a3f5891b98700ef", size = 16234, upload-time = "2024-04-16T21:28:14.499Z" },
-]
-
-[[package]]
 name = "jinja2"
 version = "3.1.6"
 source = { registry = "https://pypi.org/simple" }
@@ -410,15 +401,6 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/d7/f1/e7a6dd94a8d4a5626c03e4e99c87f241ba9e350cd9e6d75123f992427270/packaging-26.2.tar.gz", hash = "sha256:ff452ff5a3e828ce110190feff1178bb1f2ea2281fa2075aadb987c2fb221661", size = 228134, upload-time = "2026-04-24T20:15:23.917Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/df/b2/87e62e8c3e2f4b32e5fe99e0b86d576da1312593b39f47d8ceef365e95ed/packaging-26.2-py3-none-any.whl", hash = "sha256:5fc45236b9446107ff2415ce77c807cee2862cb6fac22b8a73826d0693b0980e", size = 100195, upload-time = "2026-04-24T20:15:22.081Z" },
-]
-
-[[package]]
-name = "passlib"
-version = "1.7.4"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/b6/06/9da9ee59a67fae7761aab3ccc84fa4f3f33f125b370f1ccdb915bf967c11/passlib-1.7.4.tar.gz", hash = "sha256:defd50f72b65c5402ab2c573830a6978e5f202ad0d984793c8dde2c4152ebe04", size = 689844, upload-time = "2020-10-08T19:00:52.121Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/3b/a4/ab6b7589382ca3df236e03faa71deac88cae040af60c071a78d254a62172/passlib-1.7.4-py2.py3-none-any.whl", hash = "sha256:aa6bca462b8d8bda89c70b382f0c298a20b5560af6cbfa2dce410c0a2fb669f1", size = 525554, upload-time = "2020-10-08T19:00:49.856Z" },
 ]
 
 [[package]]
@@ -595,15 +577,6 @@ wheels = [
 ]
 
 [[package]]
-name = "python-dotenv"
-version = "1.2.2"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/82/ed/0301aeeac3e5353ef3d94b6ec08bbcabd04a72018415dcb29e588514bba8/python_dotenv-1.2.2.tar.gz", hash = "sha256:2c371a91fbd7ba082c2c1dc1f8bf89ca22564a087c2c287cd9b662adde799cf3", size = 50135, upload-time = "2026-03-01T16:00:26.196Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/0b/d7/1959b9648791274998a9c3526f6d0ec8fd2233e4d4acce81bbae76b44b2a/python_dotenv-1.2.2-py3-none-any.whl", hash = "sha256:1d8214789a24de455a8b8bd8ae6fe3c6b69a5e3d64aa8a8e5d68e694bbcb285a", size = 22101, upload-time = "2026-03-01T16:00:25.09Z" },
-]
-
-[[package]]
 name = "python-multipart"
 version = "0.0.32"
 source = { registry = "https://pypi.org/simple" }
@@ -639,20 +612,18 @@ wheels = [
 
 [[package]]
 name = "sillo-framework"
-version = "0.1.0b1"
+version = "1.0.0rc1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "anyio" },
-    { name = "itsdangerous" },
-    { name = "passlib" },
     { name = "pydantic" },
-    { name = "python-dotenv" },
     { name = "python-multipart" },
+    { name = "typing-extensions", marker = "python_full_version < '3.13'" },
     { name = "uvicorn" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/23/57/a9596e5b18fa9ff110fba173f964af1cf60edc0855c96bf8bfcef0e65668/sillo_framework-0.1.0b1.tar.gz", hash = "sha256:10cb691d92ee59a5df962d814162f84a82ccf6e959f51fd1047548a95dfa7983", size = 3295768, upload-time = "2026-08-13T01:38:56.009Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/97/a4/55106f96e76b69ca81cbeb1b41392d8bff49558caebdbc2e5fc264b19690/sillo_framework-1.0.0rc1.tar.gz", hash = "sha256:14bc886b8ce8a01779087280ab1d299ceb6767a4ddc3bf4511103fdde82087a1", size = 1076455, upload-time = "2026-09-22T05:54:13.584Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/bf/78/435589eba9963a379df3853c794dd811b32a43a097e539741792bcf84cd5/sillo_framework-0.1.0b1-py3-none-any.whl", hash = "sha256:f76a0959e16737cfa714c9b7b5ce04aaf431bcd54606330d4da5bf5d6f324e2a", size = 905951, upload-time = "2026-08-13T01:38:54.398Z" },
+    { url = "https://files.pythonhosted.org/packages/f4/52/51d42b6cd12e3981df102656111dd0441657426b20230610299fac7b0852/sillo_framework-1.0.0rc1-py3-none-any.whl", hash = "sha256:2e546ad49b9fa35092662ff4668e90b976d7519aa7ec28eaba77f57fbdf4c957", size = 786821, upload-time = "2026-09-22T05:54:11.67Z" },
 ]
 
 [package.optional-dependencies]
@@ -662,9 +633,6 @@ hashing-bcrypt = [
 record = [
     { name = "tortoise-orm" },
 ]
-templating = [
-    { name = "jinja2" },
-]
 
 [[package]]
 name = "starter"
@@ -673,7 +641,9 @@ source = { editable = "." }
 dependencies = [
     { name = "aiosqlite" },
     { name = "email-validator" },
-    { name = "sillo-framework", extra = ["hashing-bcrypt", "record", "templating"] },
+    { name = "jinja2" },
+    { name = "sillo-framework", extra = ["hashing-bcrypt", "record"] },
+    { name = "warder" },
 ]
 
 [package.optional-dependencies]
@@ -691,10 +661,12 @@ requires-dist = [
     { name = "coverage", extras = ["toml"], marker = "extra == 'dev'", specifier = ">=7.4.0" },
     { name = "email-validator", specifier = ">=2.0.0" },
     { name = "httpx", marker = "extra == 'dev'", specifier = ">=0.28.1" },
+    { name = "jinja2", specifier = ">=3.1" },
     { name = "pytest", marker = "extra == 'dev'", specifier = ">=8.3.5" },
     { name = "pytest-asyncio", marker = "extra == 'dev'", specifier = ">=0.25.3" },
     { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.6.0" },
-    { name = "sillo-framework", extras = ["hashing-bcrypt", "record", "templating"], specifier = ">=0.1.0b1" },
+    { name = "sillo-framework", extras = ["hashing-bcrypt", "record"], specifier = ">=1.0.0a1" },
+    { name = "warder", specifier = ">=1.0.0a1" },
 ]
 provides-extras = ["dev"]
 
@@ -799,4 +771,16 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/03/18/ccce41535dee1be77735592bd19965f3972c82e07ee703d324709496b716/uvicorn-0.52.1.tar.gz", hash = "sha256:112ec661814189acbccd3f7b86460147cc065fc92c0821afa78918780e4354dd", size = 100571, upload-time = "2026-08-01T18:19:30.732Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/c7/d5/68e6e9bca63c0badf67002890a46d3784c958de45b65e1275ec583ca1f06/uvicorn-0.52.1-py3-none-any.whl", hash = "sha256:e4403f9d93188cf9d1088e9f40e3acd12630e2df8675316704379a7fc20fff6a", size = 79859, upload-time = "2026-08-01T18:19:29.294Z" },
+]
+
+[[package]]
+name = "warder"
+version = "1.0.0a2"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "sillo-framework" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/c1/e7/c8676add1003786a70a29f3ac417165d441b4a5ff8e197ce08cc3f048846/warder-1.0.0a2.tar.gz", hash = "sha256:ce01e81f103e985b03affe94d9932151fb95ae9c1f81e9e198376ef58aaead6d", size = 390999, upload-time = "2026-09-13T00:25:26.973Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/67/28/0f4c720dad1c73a918cc9400e59dcf85d731914fcf6205b1d10f1ac3528f/warder-1.0.0a2-py3-none-any.whl", hash = "sha256:ea2eb5eb4810737c1266d068069ecd4146d3f47dbe200827995f2c648c4e34ce", size = 295035, upload-time = "2026-09-13T00:25:25.575Z" },
 ]
