@@ -612,7 +612,7 @@ wheels = [
 
 [[package]]
 name = "sillo-framework"
-version = "1.0.0rc1"
+version = "1.0.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "anyio" },
@@ -621,9 +621,9 @@ dependencies = [
     { name = "typing-extensions", marker = "python_full_version < '3.13'" },
     { name = "uvicorn" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/97/a4/55106f96e76b69ca81cbeb1b41392d8bff49558caebdbc2e5fc264b19690/sillo_framework-1.0.0rc1.tar.gz", hash = "sha256:14bc886b8ce8a01779087280ab1d299ceb6767a4ddc3bf4511103fdde82087a1", size = 1076455, upload-time = "2026-09-22T05:54:13.584Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/f5/6c/9bb50c1ac20bdfc39d04faf646815b6887305b6e31f1905f53584a2418b7/sillo_framework-1.0.0.tar.gz", hash = "sha256:6195d393d73b0acc1054d917118e48ffb81d497363c6051ef4718b0f0d3b8c3a", size = 1085624, upload-time = "2026-09-26T20:35:24.73Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/f4/52/51d42b6cd12e3981df102656111dd0441657426b20230610299fac7b0852/sillo_framework-1.0.0rc1-py3-none-any.whl", hash = "sha256:2e546ad49b9fa35092662ff4668e90b976d7519aa7ec28eaba77f57fbdf4c957", size = 786821, upload-time = "2026-09-22T05:54:11.67Z" },
+    { url = "https://files.pythonhosted.org/packages/1c/dd/83af8abfd83c67cb4004068744899f4502ccbccf9c629cd3f365f5eeb7a3/sillo_framework-1.0.0-py3-none-any.whl", hash = "sha256:1a0ae4e2121da3df62045309600ad7f9ca8e325823c187cbaafa8037e6d86ee9", size = 792912, upload-time = "2026-09-26T20:35:22.834Z" },
 ]
 
 [package.optional-dependencies]
@@ -665,8 +665,8 @@ requires-dist = [
     { name = "pytest", marker = "extra == 'dev'", specifier = ">=8.3.5" },
     { name = "pytest-asyncio", marker = "extra == 'dev'", specifier = ">=0.25.3" },
     { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.6.0" },
-    { name = "sillo-framework", extras = ["hashing-bcrypt", "record"], specifier = ">=1.0.0a1" },
-    { name = "warder", specifier = ">=1.0.0a1" },
+    { name = "sillo-framework", extras = ["hashing-bcrypt", "record"], specifier = ">=1.0.0" },
+    { name = "warder", specifier = ">=1.0.0" },
 ]
 provides-extras = ["dev"]
 
@@ -775,12 +775,12 @@ wheels = [
 
 [[package]]
 name = "warder"
-version = "1.0.0a2"
+version = "1.0.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "sillo-framework" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/c1/e7/c8676add1003786a70a29f3ac417165d441b4a5ff8e197ce08cc3f048846/warder-1.0.0a2.tar.gz", hash = "sha256:ce01e81f103e985b03affe94d9932151fb95ae9c1f81e9e198376ef58aaead6d", size = 390999, upload-time = "2026-09-13T00:25:26.973Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/d6/b4/13129b97570c24daff1937b99142ad4b2e24a4f38e239a6d553d64f277d0/warder-1.0.0.tar.gz", hash = "sha256:93bd7261093802b7119592cd10d52a4a68e99e3025e912df1173f3dcd13f37c2", size = 390688, upload-time = "2026-09-26T20:51:48.45Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/67/28/0f4c720dad1c73a918cc9400e59dcf85d731914fcf6205b1d10f1ac3528f/warder-1.0.0a2-py3-none-any.whl", hash = "sha256:ea2eb5eb4810737c1266d068069ecd4146d3f47dbe200827995f2c648c4e34ce", size = 295035, upload-time = "2026-09-13T00:25:25.575Z" },
+    { url = "https://files.pythonhosted.org/packages/11/9f/093f854fa68d837efbfeca917655c0ebb932c026dc1ed4652a65974846e0/warder-1.0.0-py3-none-any.whl", hash = "sha256:ae43882aa2494a47f4ed9062f89dfa632f3d7fbce5c26626051c1d29448064a2", size = 294950, upload-time = "2026-09-26T20:51:47.346Z" },
 ]
